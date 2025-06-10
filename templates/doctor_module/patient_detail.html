@@ -1,0 +1,179 @@
+{% extends "doctor_module/base.html" %}
+
+{% block doctor_title %}{{ patient.user.get_full_name }}{% endblock %}
+{% block doctor_header %}Patient: {{ patient.user.get_full_name }}{% endblock %}
+
+{% block doctor_header_buttons %}
+    <a href="{% url 'create_prescription' %}?patient={{ patient.id }}" class="btn btn-sm btn-outline-primary me-2">
+        <i class="bi bi-prescription me-1"></i> New Prescription
+    </a>
+    <a href="{% url 'create_treatment_plan' %}?patient={{ patient.id }}" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-file-earmark-medical me-1"></i> New Treatment Plan
+    </a>
+{% endblock %}
+
+{% block doctor_content %}
+<div class="row">
+    <!-- Patient Information -->
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">Patient Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <img src="https://via.placeholder.com/150" alt="Profile" class="profile-img mb-2">
+                    <h5>{{ patient.user.get_full_name }}</h5>
+                    <p class="text-muted">{{ patient.get_gender_display }}</p>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <strong>Date of Birth:</strong> {{ patient.date_of_birth|date:"F j, Y" }} (Age: {{ patient.age }})
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Phone:</strong> {{ patient.phone_number }}
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Emergency Contact:</strong> {{ patient.emergency_contact }}
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Blood Type:</strong> {{ patient.blood_type|default:"Not specified" }}
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Address:</strong> {{ patient.address }}
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Allergies -->
+        <div class="card mb-4">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title mb-0">Allergies</h5>
+            </div>
+            <div class="card-body">
+                {% if allergies %}
+                    <ul class="list-group list-group-flush">
+                        {% for allergy in allergies %}
+                            <li class="list-group-item">
+                                <strong>{{ allergy.name }}</strong> ({{ allergy.get_severity_display }})
+                                <p class="mb-0 small">{{ allergy.reaction }}</p>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted">No allergies recorded.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Medical Information -->
+    <div class="col-md-8">
+        <!-- Active Prescriptions -->
+        <div class="card mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="card-title mb-0">Active Prescriptions</h5>
+            </div>
+            <div class="card-body">
+                {% if prescriptions %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Medication</th>
+                                    <th>Dosage</th>
+                                    <th>Frequency</th>
+                                    <th>Prescribed</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for prescription in prescriptions %}
+                                    <tr>
+                                        <td>{{ prescription.medication }}</td>
+                                        <td>{{ prescription.dosage }}</td>
+                                        <td>{{ prescription.frequency }}</td>
+                                        <td>{{ prescription.date_prescribed|date:"M j, Y" }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No active prescriptions.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Treatment Plans -->
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="card-title mb-0">Treatment Plans</h5>
+            </div>
+            <div class="card-body">
+                {% if treatment_plans %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Diagnosis</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for plan in treatment_plans %}
+                                    <tr>
+                                        <td>{{ plan.created_date|date:"M j, Y" }}</td>
+                                        <td>{{ plan.diagnosis|truncatechars:50 }}</td>
+                                        <td>
+                                            <a href="{% url 'view_treatment_plan' plan.id %}" class="btn btn-sm btn-outline-primary">
+                                                View Details
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No treatment plans created.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Medical Records -->
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">Medical Records</h5>
+            </div>
+            <div class="card-body">
+                {% if medical_records %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Diagnosis</th>
+                                    <th>Treatment</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in medical_records %}
+                                    <tr>
+                                        <td>{{ record.record_date|date:"M j, Y" }}</td>
+                                        <td>{{ record.diagnosis|truncatechars:50 }}</td>
+                                        <td>{{ record.treatment|truncatechars:50 }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No medical records found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

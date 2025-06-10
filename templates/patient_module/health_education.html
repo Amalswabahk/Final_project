@@ -1,0 +1,560 @@
+{% extends 'patient_module/base.html' %}
+{% load static %}
+
+
+{% block extra_css %}
+    <style>
+        :root {
+                --primary: #1976D2;  /* Changed from green to blue */
+                --primary-light: #E3F2FD;  /* Lighter blue */
+                --secondary: #0288D1;  /* Kept as is (already blue) */
+                --accent: #FF9800;
+                --text: #333333;
+                --light-text: #666666;
+                --bg-light: #F9F9F9;
+                --white: #FFFFFF;
+            }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background-color: var(--bg-light);
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        .main-header {
+            background: linear-gradient(135deg, var(--primary) 0%, #2196F3 100%);
+            color: var(--white);
+            padding: 2rem 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            margin-right: 10px;
+            font-size: 2.2rem;
+        }
+
+        /* Navigation */
+        .main-nav ul {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .main-nav li {
+            margin-left: 1.5rem;
+        }
+
+        .main-nav a {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            padding: 0.5rem 0;
+            border-bottom: 2px solid transparent;
+        }
+
+        .main-nav a:hover {
+            border-bottom: 2px solid var(--white);
+        }
+
+        /* Article Detail View */
+        .article-detail {
+            background: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .article-header {
+            border-bottom: 2px solid var(--primary-light);
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .article-title {
+            color: var(--primary);
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .article-meta {
+            display: flex;
+            justify-content: space-between;
+            color: var(--light-text);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .article-category {
+            background-color: var(--primary-light);
+            color: var(--primary);  /* Now blue */
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .article-content {
+            text-align: justify;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        .article-content img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 2rem auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            margin-top: 2rem;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: var(--secondary);
+        }
+
+        .back-link svg {
+            margin-right: 8px;
+        }
+
+        /* Article List View */
+        .search-filter {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .search-filter input {
+            flex: 1;
+            min-width: 250px;
+            padding: 0.8rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .search-filter select {
+            padding: 0.8rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            background-color: var(--white);
+        }
+
+        .search-filter button {
+            padding: 0.8rem 1.5rem;
+            background-color: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-filter button:hover {
+             background-color: #1565C0;
+        }
+
+        .category-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-bottom: 2rem;
+        }
+
+        .category-nav a {
+            padding: 0.6rem 1.2rem;
+            background-color: var(--primary-light);
+            color: var(--primary);  /* Now blue */
+            text-decoration: none;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .category-nav a:hover, .category-nav a.active {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+
+        .article-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .article-card {
+            background: var(--white);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .article-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .card-image {
+            height: 180px;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .article-card h3 {
+            margin: 0 0 0.8rem 0;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.3rem;
+        }
+
+        .article-card h3 a {
+            color: var(--text);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .article-card h3 a:hover {
+            color: var(--primary);
+        }
+
+        .article-card .excerpt {
+            color: var(--light-text);
+            font-size: 0.95rem;
+            margin: 0.8rem 0;
+        }
+
+        .article-card .meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--light-text);
+            margin-top: 1rem;
+        }
+
+        .read-more {
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .read-more:hover {
+            color: var(--secondary);
+        }
+
+        .read-more svg {
+            margin-left: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .read-more:hover svg {
+            transform: translateX(3px);
+        }
+
+        /* Footer */
+        .main-footer {
+            background-color: var(--primary);
+            color: var(--white);
+            padding: 3rem 0;
+            margin-top: 3rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .footer-column h3 {
+            font-family: 'Poppins', sans-serif;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+        }
+
+        .footer-column ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-column li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-column a {
+            color: var(--white);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .footer-column a:hover {
+            text-decoration: underline;
+        }
+
+        .copyright {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .main-nav {
+                margin-top: 1rem;
+            }
+
+            .main-nav ul {
+                justify-content: center;
+            }
+
+            .article-title {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+
+{% endblock %}
+
+
+
+{% block content %}
+
+
+    <main class="container">
+        {% if health_education %}
+            <!-- Single Article View -->
+            <article class="article-detail">
+                <header class="article-header">
+                    <h1 class="article-title">{{ health_education.title }}</h1>
+                    <div class="article-meta">
+                        <span>Published: {{ health_education.published_date|date:"F j, Y" }}</span>
+                        <span>Last Updated: {{ health_education.last_updated|date:"F j, Y" }}</span>
+                        <span class="article-category">{{ health_education.category }}</span>
+                    </div>
+                </header>
+
+                <div class="article-content">
+                    {{ health_education.content|linebreaks }}
+                </div>
+
+                <a href="#" class="back-link">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    Back to All Articles
+                </a>
+            </article>
+        {% else %}
+            <!-- Article Listing View -->
+            <div class="search-filter">
+                <input type="text" placeholder="Search health articles...">
+                <select>
+                    <option>All Categories</option>
+                    <option>Nutrition</option>
+                    <option>Exercise</option>
+                    <option>Mental Health</option>
+                    <option>Preventive Care</option>
+                    <option>Chronic Conditions</option>
+                </select>
+                <button>Search</button>
+            </div>
+
+            <nav class="category-nav">
+                <a href="#" class="active">All</a>
+                <a href="#">Nutrition</a>
+                <a href="#">Exercise</a>
+                <a href="#">Mental Health</a>
+                <a href="#">Preventive Care</a>
+                <a href="#">Chronic Conditions</a>
+            </nav>
+
+            <div class="article-list">
+                <!-- Sample Article 1 -->
+                <div class="article-card">
+                    <div class="card-image" style="background-image: url('https://images.unsplash.com/photo-1490645935967-10de6ba17061?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80');"></div>
+                    <div class="card-body">
+                        <h3><a href="#">The Mediterranean Diet: A Heart-Healthy Eating Plan</a></h3>
+                        <div class="excerpt">Discover how the Mediterranean diet can improve your cardiovascular health and overall wellbeing with these simple dietary changes.</div>
+                        <div class="meta">
+                            <span>May 15, 2023</span>
+                            <span class="article-category">Nutrition</span>
+                        </div>
+                        <a href="#" class="read-more">
+                            Read more
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Sample Article 2 -->
+                <div class="article-card">
+                    <div class="card-image" style="background-image: url('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80');"></div>
+                    <div class="card-body">
+                        <h3><a href="#">Strength Training for Beginners: A Complete Guide</a></h3>
+                        <div class="excerpt">Learn the fundamentals of strength training, including proper form, recommended exercises, and how to create a balanced workout routine.</div>
+                        <div class="meta">
+                            <span>April 28, 2023</span>
+                            <span class="article-category">Exercise</span>
+                        </div>
+                        <a href="#" class="read-more">
+                            Read more
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Sample Article 3 -->
+                <div class="article-card">
+                    <div class="card-image" style="background-image: url('https://images.unsplash.com/photo-1593814681464-eef5af2b0628?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80');"></div>
+                    <div class="card-body">
+                        <h3><a href="#">Managing Stress: Techniques for Daily Life</a></h3>
+                        <div class="excerpt">Explore evidence-based stress management techniques that can help you maintain mental wellbeing in today's fast-paced world.</div>
+                        <div class="meta">
+                            <span>April 10, 2023</span>
+                            <span class="article-category">Mental Health</span>
+                        </div>
+                        <a href="#" class="read-more">
+                            Read more
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Sample Article 4 -->
+                <div class="article-card">
+                    <div class="card-image" style="background-image: url('https://images.unsplash.com/photo-1505751172876-fa1923c5c528?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80');"></div>
+                    <div class="card-body">
+                        <h3><a href="#">Essential Health Screenings by Age Group</a></h3>
+                        <div class="excerpt">A comprehensive guide to the preventive health screenings you should consider at every stage of life for early detection of potential health issues.</div>
+                        <div class="meta">
+                            <span>March 22, 2023</span>
+                            <span class="article-category">Preventive Care</span>
+                        </div>
+                        <a href="#" class="read-more">
+                            Read more
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Sample Article 5 -->
+                <div class="article-card">
+                    <div class="card-image" style="background-image: url('https://images.unsplash.com/photo-1579684385127-1ef15d508118?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80');"></div>
+                    <div class="card-body">
+                        <h3><a href="#">Living with Diabetes: Daily Management Tips</a></h3>
+                        <div class="excerpt">Practical advice for managing diabetes through diet, exercise, medication adherence, and lifestyle modifications to maintain optimal health.</div>
+                        <div class="meta">
+                            <span>March 5, 2023</span>
+                            <span class="article-category">Chronic Conditions</span>
+                        </div>
+                        <a href="#" class="read-more">
+                            Read more
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Sample Article 6 -->
+                <div class="article-card">
+                    <div class="card-image" style="background-image: url('https://images.unsplash.com/photo-1547592180-85f173990554?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80');"></div>
+                    <div class="card-body">
+                        <h3><a href="#">The Importance of Hydration for Health</a></h3>
+                        <div class="excerpt">Learn how proper hydration affects all aspects of your health, from cognitive function to joint health, and how much water you really need.</div>
+                        <div class="meta">
+                            <span>February 18, 2023</span>
+                            <span class="article-category">Nutrition</span>
+                        </div>
+                        <a href="#" class="read-more">
+                            Read more
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </main>
+
+
+
+{% endblock %}

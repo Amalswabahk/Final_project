@@ -1,0 +1,38 @@
+/* Doctor-specific styles */
+.prescription-card {
+    border-left: 4px solid #6f42c1;
+}
+
+.treatment-plan-card {
+    border-left: 4px solid #20c997;
+}
+
+.interaction-severe {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.interaction-moderate {
+    color: #fd7e14;
+    font-weight: bold;
+}
+
+.interaction-mild {
+    color: #ffc107;
+    font-weight: bold;
+}
+
+.medication-chip {
+    display: inline-block;
+    padding: 0.25em 0.4em;
+    font-size: 75%;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.25rem;
+    background-color: #f8f9fa;
+    margin-right: 5px;
+    margin-bottom: 5px;
+}

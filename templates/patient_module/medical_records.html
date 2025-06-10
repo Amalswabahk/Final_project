@@ -1,0 +1,297 @@
+{% extends 'patient_module/base.html' %}
+{% load static %}
+
+{% block title %}Medical Records{% endblock %}
+{% block header %}Medical Records{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3">
+            <!-- Patient Summary Card -->
+            <!-- Patient Summary Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Patient Summary</h5>
+                </div>
+                <div class="card-body text-center">
+                    <img src="{% if patient.profile_picture %}{{ patient.profile_picture.url }}{% else %}{% static 'images/patient-placeholder.jpg' %}{% endif %}"
+                         class="rounded-circle mb-3" width="120" height="120">
+                    <h4>{{ patient.user.get_full_name }}</h4>
+                    <p class="text-muted">Patient: {{ patient.user.get_full_name }}</p>
+
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item">
+                            <strong>Age:</strong> {{ patient.age }}
+                        </div>
+                        <div class="list-group-item">
+                            <strong>Blood Type:</strong> {{ patient.blood_type|default:"Not specified" }}
+                        </div>
+                        <div class="list-group-item">
+                            <strong>Allergies:</strong>
+                            {% if patient.allergies.all %}
+                                {{ patient.allergies.all|join:", " }}
+                            {% else %}
+                                None recorded
+                            {% endif %}
+                        </div>
+                        <div class="list-group-item">
+                            <strong>Last Visit:</strong> {{ last_visit|date:"M d, Y"|default:"No visits" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Quick Navigation -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Quick Access</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#newRecordModal">
+                            <i class="bi bi-plus-circle"></i> Add New Record
+                        </button>
+                        <a href="{% url 'prescription_list'  %}" class="btn btn-outline-success">
+                            <i class="bi bi-prescription"></i> View Prescriptions
+                        </a>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <!-- Medical Records Timeline -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Medical History</h5>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" 
+                                id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-funnel"></i> Filter
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="filterDropdown">
+                            <li><a class="dropdown-item" href="?filter=all">All Records</a></li>
+                            <li><a class="dropdown-item" href="?filter=consultations">Consultations</a></li>
+                            <li><a class="dropdown-item" href="?filter=procedures">Procedures</a></li>
+                            <li><a class="dropdown-item" href="?filter=diagnoses">Diagnoses</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if medical_records %}
+                    <div class="timeline">
+                        {% for record in medical_records %}
+                        <div class="timeline-item {% cycle 'left' 'right' %}">
+                            <div class="timeline-badge bg-{% if record.record_type == 'Diagnosis' %}danger{% elif record.record_type == 'Procedure' %}info{% else %}primary{% endif %}">
+                                <i class="bi bi-{% if record.record_type == 'Diagnosis' %}exclamation-triangle{% elif record.record_type == 'Procedure' %}scissors{% else %}chat-square-text{% endif %}"></i>
+                            </div>
+                            <div class="timeline-panel">
+                                <div class="timeline-heading">
+                                    <h5 class="timeline-title">{{ record.title }}</h5>
+                                    <p class="text-muted">
+                                        <small>
+                                            <i class="bi bi-calendar"></i> {{ record.date|date:"M d, Y" }}
+                                            <i class="bi bi-person ms-2"></i> Dr. {{ record.doctor.user.get_full_name }}
+                                            <span class="badge bg-secondary ms-2">{{ record.record_type }}</span>
+                                        </small>
+                                    </p>
+                                </div>
+                                <div class="timeline-body">
+                                    <p>{{ record.description }}</p>
+                                    {% if record.files.all %}
+                                    <div class="mt-2">
+                                        <strong>Attachments:</strong>
+                                        <div class="d-flex flex-wrap gap-2 mt-1">
+                                            {% for file in record.files.all %}
+                                            <a href="{{ file.file.url }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                                <i class="bi bi-paperclip"></i> {{ file.get_filename }}
+                                            </a>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    <div class="mt-3 d-flex justify-content-end">
+                                        <button class="btn btn-sm btn-outline-primary me-2">
+                                            <i class="bi bi-pencil"></i> Edit
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash"></i> Delete
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-clipboard-x" style="font-size: 3rem;"></i>
+                        <h4 class="mt-3">No medical records found</h4>
+                        <p class="text-muted">Start by adding a new medical record</p>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newRecordModal">
+                            <i class="bi bi-plus-circle"></i> Add First Record
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New Record Modal -->
+<div class="modal fade" id="newRecordModal" tabindex="-1" aria-labelledby="newRecordModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="newRecordModalLabel">Add New Medical Record</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" enctype="multipart/form-data">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="record_type" class="form-label">Record Type</label>
+                            <select class="form-select" id="record_type" name="record_type" required>
+                                <option value="">Select type</option>
+                                <option value="Consultation">Consultation</option>
+                                <option value="Diagnosis">Diagnosis</option>
+                                <option value="Procedure">Procedure</option>
+                                <option value="Note">Note</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="date" class="form-label">Date</label>
+                            <input type="date" class="form-control" id="date" name="date" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="title" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="doctor" class="form-label">Doctor</label>
+                        <select class="form-select" id="doctor" name="doctor" required>
+                            <option value="">Select doctor</option>
+                            {% for doctor in doctors %}
+                            <option value="{{ doctor.id }}">Dr. {{ doctor.user.get_full_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="files" class="form-label">Attachments</label>
+                        <input class="form-control" type="file" id="files" name="files" multiple>
+                        <div class="form-text">You can upload multiple files (reports, images, etc.)</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Record</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Timeline styling */
+    .timeline {
+        position: relative;
+        padding: 20px 0;
+    }
+    .timeline::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        width: 2px;
+        background-color: #e9ecef;
+        transform: translateX(-50%);
+    }
+    .timeline-item {
+        position: relative;
+        margin-bottom: 30px;
+    }
+    .timeline-badge {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transform: translateX(-50%);
+        z-index: 1;
+    }
+    .timeline-panel {
+        position: relative;
+        width: 46%;
+        padding: 20px;
+        background-color: white;
+        border-radius: 6px;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    .timeline-item.left .timeline-panel {
+        left: 0;
+    }
+    .timeline-item.right .timeline-panel {
+        left: 54%;
+    }
+    .timeline-title {
+        margin-top: 0;
+        color: #495057;
+    }
+    .timeline-body p:last-child {
+        margin-bottom: 0;
+    }
+    @media (max-width: 768px) {
+        .timeline::before {
+            left: 40px;
+        }
+        .timeline-item .timeline-panel {
+            width: calc(100% - 90px);
+            left: 80px;
+        }
+        .timeline-item.left .timeline-panel,
+        .timeline-item.right .timeline-panel {
+            left: 80px;
+        }
+        .timeline-badge {
+            left: 40px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize date picker with today's date
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('date').value = today;
+    
+    // Initialize select2 for doctor selection
+    $('#doctor').select2({
+        placeholder: "Select doctor",
+        dropdownParent: $('#newRecordModal')
+    });
+    
+    // Handle file upload preview (you can extend this)
+    $('#files').change(function() {
+        const files = this.files;
+        if (files.length > 0) {
+            console.log(`${files.length} file(s) selected`);
+        }
+    });
+});
+</script>
+{% endblock %}

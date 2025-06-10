@@ -1,0 +1,70 @@
+{% extends "patient_module/base.html" %}
+
+{% block title %}Book Appointment{% endblock %}
+{% block header %}Book New Appointment{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="id_provider" class="form-label">Healthcare Provider</label>
+                        {{ form.provider }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_date_time" class="form-label">Date & Time</label>
+                        {{ form.date_time }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_reason" class="form-label">Reason for Appointment</label>
+                        {{ form.reason }}
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Book Appointment</button>
+                    <a href="{% url 'appointment_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">Appointment Tips</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Arrive 15 minutes early for your first appointment</li>
+                    <li class="list-group-item">Bring your insurance card and ID</li>
+                    <li class="list-group-item">Prepare a list of current medications</li>
+                    <li class="list-group-item">Write down any symptoms or concerns</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    // Initialize datetime picker
+    $('#id_date_time').attr('type', 'datetime-local');
+    
+    // Provider selection enhancement
+    $('#id_provider').select2({
+        placeholder: "Select a provider",
+        allowClear: true
+    });
+});
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+{% endblock %}

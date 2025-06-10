@@ -1,0 +1,145 @@
+{% extends "doctor_module/base.html" %}
+
+{% block doctor_title %}New Prescription{% endblock %}
+{% block doctor_header %}Create New Prescription{% endblock %}
+
+{% block doctor_content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="post" id="prescription-form">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="id_patient" class="form-label">Patient</label>
+                        {{ form.patient }}
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="id_medication" class="form-label">Medication</label>
+                            {{ form.medication }}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="id_dosage" class="form-label">Dosage</label>
+                            {{ form.dosage }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="id_frequency" class="form-label">Frequency</label>
+                            {{ form.frequency }}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="id_duration" class="form-label">Duration</label>
+                            {{ form.duration }}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_instructions" class="form-label">Instructions</label>
+                        {{ form.instructions }}
+                    </div>
+
+                    <div id="interactions-alert" class="alert alert-danger d-none">
+                        <h5 class="alert-heading">Drug Interaction Warning</h5>
+                        <div id="interactions-list"></div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Save Prescription</button>
+                    <a href="{% if form.instance.patient %}{% url 'patient_detail' form.instance.patient.id %}{% else %}{% url 'doctor_dashboard' %}{% endif %}" class="btn btn-outline-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">Prescription Tips</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Always check for drug interactions</li>
+                    <li class="list-group-item">Consider patient allergies</li>
+                    <li class="list-group-item">Provide clear instructions</li>
+                    <li class="list-group-item">Review patient's current medications</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="card-title mb-0">Common Medications</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    <button type="button" class="list-group-item list-group-item-action" onclick="addMedication('Amoxicillin', '500mg', 'Every 8 hours', '10 days')">
+                        Amoxicillin 500mg
+                    </button>
+                    <button type="button" class="list-group-item list-group-item-action" onclick="addMedication('Lisinopril', '10mg', 'Once daily', '30 days')">
+                        Lisinopril 10mg
+                    </button>
+                    <button type="button" class="list-group-item list-group-item-action" onclick="addMedication('Atorvastatin', '20mg', 'Once at bedtime', '30 days')">
+                        Atorvastatin 20mg
+                    </button>
+                    <button type="button" class="list-group-item list-group-item-action" onclick="addMedication('Metformin', '500mg', 'Twice daily', '30 days')">
+                        Metformin 500mg
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function addMedication(med, dosage, frequency, duration) {
+    document.getElementById('id_medication').value = med;
+    document.getElementById('id_dosage').value = dosage;
+    document.getElementById('id_frequency').value = frequency;
+    document.getElementById('id_duration').value = duration;
+    checkInteractions();
+}
+
+function checkInteractions() {
+    const medication = document.getElementById('id_medication').value;
+    if (!medication) return;
+
+    // Get current patient prescriptions
+    const patientId = document.getElementById('id_patient').value;
+    if (!patientId) return;
+
+    fetch(`/api/patient/${patientId}/medications/`)
+        .then(response => response.json())
+        .then(data => {
+            const currentMeds = data.medications;
+            if (currentMeds.length > 0) {
+                const allMeds = currentMeds.concat(medication).join(',');
+                return fetch(`{% url 'check_interactions' %}?medications=${encodeURIComponent(allMeds)}`);
+            }
+            return {json: () => ({interactions: []})};
+        })
+        .then(response => response.json())
+        .then(data => {
+            const alertDiv = document.getElementById('interactions-alert');
+            const listDiv = document.getElementById('interactions-list');
+
+            if (data.interactions.length > 0) {
+                listDiv.innerHTML = data.interactions.map(i => `
+                    <p><strong>${i.drug1} + ${i.drug2}</strong> (${i.severity})<br>
+                    ${i.description}</p>
+                `).join('');
+                alertDiv.classList.remove('d-none');
+            } else {
+                alertDiv.classList.add('d-none');
+            }
+        });
+}
+
+// Check interactions when medication changes
+document.getElementById('id_medication').addEventListener('change', checkInteractions);
+document.getElementById('id_patient').addEventListener('change', checkInteractions);
+</script>
+{% endblock %}

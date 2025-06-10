@@ -1,0 +1,194 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid px-4" style="padding: 100px 0;background-color: #5bc0de;">
+    <!-- Centered Heading with Conditional Admin Controls -->
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold">
+            <i class="fas fa-user-md me-2 text-primary"></i> Our Medical Team
+        </h1>
+
+        {% if request.user.is_superuser or request.user.is_staff %}
+        <div class="d-flex justify-content-center gap-3 mt-4">
+            <a href="#" class="btn btn-primary btn-lg px-4 rounded-pill shadow-sm">
+                <i class="fas fa-plus-circle me-1"></i> Add Provider
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Card View -->
+    <div class="row g-4">
+        {% for provider in providers %}
+        <div class="col-xl-3 col-lg-4 col-md-6">
+            <div class="card h-100 border-0 shadow-sm doctor-card">
+                <div class="card-img-top overflow-hidden position-relative" style="height: 200px;">
+                    <img src="{% if provider.profile_image %}{{ provider.profile_image.url }}{% else %}{% static 'images/doctor-placeholder1.jpg' %}{% endif %}"
+                         class="img-fluid w-100 h-100"
+                         style="object-fit: cover;">
+                    {% if provider.is_verified %}
+                    <span class="badge bg-success position-absolute top-0 end-0 m-2 shadow-sm">
+                        <i class="fas fa-check-circle me-1"></i> Verified
+                    </span>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h3 class="h5 fw-bold mb-1">Dr. {{ provider.user.get_full_name }}</h3>
+                            <p class="text-primary mb-2">
+                                <i class="fas {{ provider.department.icon|default:'fa-user-md' }} me-1"></i>
+                                {{ provider.specialization }}
+                            </p>
+                        </div>
+                        <span class="badge bg-primary-light text-primary rounded-pill">
+                            {{ provider.years_of_experience }}+ yrs
+                        </span>
+                    </div>
+
+                    <div class="doctor-rating mb-3">
+                        <div class="stars mb-1">
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star-half-alt text-warning"></i>
+                            <span class="ms-2 small fw-bold">4.8</span>
+                        </div>
+                        <small class="text-muted">(128 reviews)</small>
+                    </div>
+
+                    <p class="card-text text-muted mb-4">
+                        {{ provider.bio|truncatewords:20|default:"Experienced medical professional dedicated to patient care." }}
+                    </p>
+
+                    {% if provider.department %}
+                    <div class="mb-4">
+                        <span class="badge bg-info-light text-dark rounded-pill px-3 py-2">
+                            <i class="fas fa-clinic-medical me-1"></i>
+                            {{ provider.department.name }}
+                        </span>
+                    </div>
+                    {% endif %}
+
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'provider-detail' provider.pk %}"
+                           class="btn btn-outline-primary rounded-pill">
+                            <i class="fas fa-eye me-1"></i> View Profile
+                        </a>
+
+                        <!-- Appointment Booking Section -->
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'create_appointment'  %}"
+                               class="btn btn-primary rounded-pill">
+                                <i class="fas fa-calendar-check me-1"></i> Book Appointment
+                            </a>
+                        {% else %}
+                            <div class="alert alert-info py-2 px-3 mb-2 text-center small">
+                                <i class="fas fa-info-circle me-1"></i> Login to book an appointment
+                            </div>
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'patient-login' %}?next={% url 'provider-list' %}"
+                                   class="btn btn-sm btn-outline-primary flex-grow-1">
+                                    <i class="fas fa-sign-in-alt me-1"></i> Login
+                                </a>
+                                <a href="{% url 'register_patient' %}"
+                                   class="btn btn-sm btn-outline-secondary flex-grow-1">
+                                    <i class="fas fa-user-plus me-1"></i> Register
+                                </a>
+                            </div>
+                        {% endif %}
+
+                        {% if request.user.is_superuser or request.user.is_staff %}
+                        <div class="btn-group mt-2">
+                            <a href="{% url 'provider-update' provider.pk %}"
+                               class="btn btn-sm btn-outline-secondary"
+                               data-bs-toggle="tooltip"
+                               title="Edit Profile">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'provider-delete' provider.pk %}"
+                               class="btn btn-sm btn-outline-danger"
+                               data-bs-toggle="tooltip"
+                               title="Delete Profile">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center py-5">
+                    <img src="{% static 'images/default-doctor.jpg' %}"
+                         class="rounded-circle mb-4"
+                         width="120"
+                         height="120"
+                         alt="No providers"
+                         style="object-fit: cover;">
+                    <h3 class="mb-3">No Healthcare Providers Found</h3>
+                    <p class="lead text-muted mb-4">We currently don't have any providers registered in our system</p>
+
+                    {% if request.user.is_superuser or request.user.is_staff %}
+                    <a href="#" class="btn btn-primary btn-lg px-4 rounded-pill">
+                        <i class="fas fa-plus-circle me-1"></i> Add First Provider
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .doctor-card {
+        transition: all 0.3s ease;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    .doctor-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px rgba(0,0,0,0.1) !important;
+    }
+    .card-img-top {
+        border-radius: 12px 12px 0 0;
+    }
+    .bg-primary-light {
+        background-color: rgba(75, 121, 207, 0.1);
+    }
+    .bg-info-light {
+        background-color: rgba(23, 162, 184, 0.1);
+    }
+    .doctor-rating .stars {
+        font-size: 0.9rem;
+    }
+    .rounded-pill {
+        border-radius: 50rem !important;
+    }
+    .top-0 {
+        top: 10px;
+    }
+    .end-0 {
+        right: 10px;
+    }
+    .alert-info {
+        background-color: rgba(13, 110, 253, 0.1);
+        border-color: rgba(13, 110, 253, 0.2);
+    }
+</style>
+
+<script>
+    // Initialize tooltips
+    document.addEventListener('DOMContentLoaded', function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+</script>
+{% endblock %}

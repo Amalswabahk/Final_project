@@ -1,0 +1,17 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>Delete Healthcare Provider</h3>
+    </div>
+    <div class="card-body">
+        <p>Are you sure you want to delete Dr. {{ provider.user.get_full_name }}?</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Confirm Delete</button>
+            <a href="{% url 'healthcare_provider_list' %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

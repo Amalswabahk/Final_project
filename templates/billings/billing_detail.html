@@ -1,0 +1,167 @@
+{% extends 'patient_module/base.html' %}
+
+{% block title %}Invoice #{{ billing.invoice_number }}{% endblock %}
+{% block header %}Invoice #{{ billing.invoice_number }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Invoice Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h6>Billed To:</h6>
+                        <p>
+                            <strong>{{ billing.patient }}</strong><br>
+                            {{ billing.patient.address|linebreaksbr }}<br>
+                            Phone: {{ billing.patient.phone_number }}<br>
+                            Email: {{ billing.patient.user.email }}
+                        </p>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <h6>Invoice Information:</h6>
+                        <p>
+                            <strong>Invoice #:</strong> {{ billing.invoice_number }}<br>
+                            <strong>Date Issued:</strong> {{ billing.date_issued|date:"d M Y" }}<br>
+                            <strong>Due Date:</strong>
+                            <span class="{% if billing.is_overdue %}text-danger{% endif %}">
+                                {{ billing.due_date|date:"d M Y" }}
+                            </span><br>
+                            <strong>Status:</strong>
+                            <span class="badge bg-{% if billing.status == 'Paid' %}success{% elif billing.status == 'Overdue' %}danger{% else %}warning{% endif %}">
+                                {{ billing.status }}
+                            </span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="table-responsive mb-4">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Description</th>
+                                <th class="text-end">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Medical Services</td>
+                                <td class="text-end">₹{{ billing.amount }}</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th class="text-end">Total:</th>
+                                <th class="text-end">₹{{ billing.amount }}</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                {% if billing.insurance_claim %}
+                <div class="card bg-light mb-3">
+                    <div class="card-header">
+                        <h6 class="mb-0">Insurance Information</h6>
+                    </div>
+                    <div class="card-body">
+                        {{ billing.insurance_details|linebreaks }}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Invoice Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'billing_update' billing.pk %}" class="btn btn-outline-primary">
+                        <i class="bi bi-pencil"></i> Edit Invoice
+                    </a>
+
+                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#statusModal">
+                        <i class="bi bi-arrow-repeat"></i> Update Status
+                    </button>
+
+                    <a href="#" class="btn btn-outline-success">
+                        <i class="bi bi-printer"></i> Print Invoice
+                    </a>
+
+                    <a href="#" class="btn btn-outline-info">
+                        <i class="bi bi-envelope"></i> Email Invoice
+                    </a>
+
+                    {% if billing.status != 'Paid' %}
+                    <a href="#" class="btn btn-success">
+                        <i class="bi bi-credit-card"></i> Record Payment
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Payment History</h5>
+            </div>
+            <div class="card-body">
+                {% if billing.payments.exists %}
+                <div class="list-group">
+                    {% for payment in billing.payments.all %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between">
+                            <span>₹{{ payment.amount }}</span>
+                            <span class="badge bg-{% if payment.status == 'completed' %}success{% else %}warning{% endif %}">
+                                {{ payment.get_status_display }}
+                            </span>
+                        </div>
+                        <small class="text-muted">
+                            {{ payment.payment_date|date:"d M Y" }} via {{ payment.get_payment_method_display }}
+                        </small>
+                        {% if payment.stripe_receipt_url %}
+                        <div class="mt-2">
+                            <a href="{{ payment.stripe_receipt_url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-receipt"></i> View Receipt
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">No payments recorded</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Status Update Modal -->
+<div class="modal fade" id="statusModal" tabindex="-1" aria-labelledby="statusModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="statusModalLabel">Update Invoice Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="{% url 'billing_status_update' billing.pk %}">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    {{ status_form }}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Status</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

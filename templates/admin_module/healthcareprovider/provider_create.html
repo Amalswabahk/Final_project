@@ -1,0 +1,71 @@
+{% extends "admin_module/base.html" %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">{{ title }}</h3>
+    </div>
+    <form method="post">
+        {% csrf_token %}
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>{{ form.first_name.label }}</label>
+                        {{ form.first_name }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>{{ form.last_name.label }}</label>
+                        {{ form.last_name }}
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>{{ form.email.label }}</label>
+                        {{ form.email }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>{{ form.username.label }}</label>
+                        {{ form.username }}
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>{{ form.password.label }}</label>
+                        {{ form.password }}
+                        {% if not form.password.required %}
+                        <small class="text-muted">Leave blank to keep current password</small>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>{{ form.specialization.label }}</label>
+                        {{ form.specialization }}
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>{{ form.license_number.label }}</label>
+                        {{ form.license_number }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-default">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

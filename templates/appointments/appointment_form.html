@@ -1,0 +1,126 @@
+{% extends "patient_module/base.html" %}
+
+{% block content %}
+<div class="appointment-form-container">
+    <h2 class="appointment-header">{% if object %}Edit{% else %}Book{% endif %} Appointment</h2>
+    
+    <form method="POST" class="appointment-form">
+        {% csrf_token %}
+        
+        <div class="form-fields">
+            {% for field in form %}
+            <div class="form-field {% if field.errors %}has-error{% endif %}">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.errors %}
+                <div class="error-message">
+                    {{ field.errors|join:", " }}
+                </div>
+                {% endif %}
+                {% if field.help_text %}
+                <small class="help-text">{{ field.help_text }}</small>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        
+        <button type="submit" class="btn btn-primary submit-btn">
+            {% if object %}Update{% else %}Book{% endif %} Appointment
+        </button>
+    </form>
+</div>
+
+<style>
+    .appointment-form-container {
+        max-width: 600px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .appointment-header {
+        color: #2c3e50;
+        text-align: center;
+        margin-bottom: 1.5rem;
+        font-weight: 600;
+    }
+    
+    .form-fields {
+        display: grid;
+        gap: 1.2rem;
+    }
+    
+    .form-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+    }
+    
+    .form-field label {
+        font-weight: 500;
+        color: #34495e;
+    }
+    
+    .form-field input, 
+    .form-field select, 
+    .form-field textarea {
+        padding: 0.8rem;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 1rem;
+        transition: border-color 0.3s;
+    }
+    
+    .form-field input:focus, 
+    .form-field select:focus, 
+    .form-field textarea:focus {
+        border-color: #3498db;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+    }
+    
+    .has-error input, 
+    .has-error select, 
+    .has-error textarea {
+        border-color: #e74c3c;
+    }
+    
+    .error-message {
+        color: #e74c3c;
+        font-size: 0.85rem;
+        margin-top: 0.2rem;
+    }
+    
+    .help-text {
+        color: #7f8c8d;
+        font-size: 0.85rem;
+    }
+    
+    .submit-btn {
+        width: 100%;
+        padding: 0.8rem;
+        margin-top: 1rem;
+        background-color: #3498db;
+        border: none;
+        border-radius: 5px;
+        color: white;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    
+    .submit-btn:hover {
+        background-color: #2980b9;
+    }
+    
+    @media (max-width: 768px) {
+        .appointment-form-container {
+            padding: 1.5rem;
+            margin: 1rem;
+        }
+    }
+</style>
+{% endblock %}

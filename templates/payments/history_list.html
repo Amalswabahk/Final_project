@@ -1,0 +1,102 @@
+{% extends 'patient_module/base.html' %}
+
+{% block title %}Payment History{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-file-invoice-dollar me-2"></i> Payment History</h2>
+        <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-filter me-1"></i> Filter
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="filterDropdown">
+                <li><a class="dropdown-item" href="?status=all">All Payments</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="?status=completed">Completed</a></li>
+                <li><a class="dropdown-item" href="?status=pending">Pending</a></li>
+                <li><a class="dropdown-item" href="?status=failed">Failed</a></li>
+                <li><a class="dropdown-item" href="?status=refunded">Refunded</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            {% if payment_history %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Transaction ID</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for payment in payment_history %}
+                        <tr>
+                            <td>{{ payment.created_at|date:"M d, Y" }}</td>
+                            <td>{{ payment.transaction_id|truncatechars:12 }}</td>
+                            <td>{{ payment.description }}</td>
+                            <td>${{ payment.amount }}</td>
+                            <td>
+                                <span class="badge bg-{% if payment.status == 'completed' %}success{% elif payment.status == 'pending' %}warning{% elif payment.status == 'failed' %}danger{% else %}info{% endif %}">
+                                    {{ payment.status|title }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'payment_detail' payment.id %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
+                    {% else %}
+                    <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                    {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-file-invoice-dollar fa-4x text-muted mb-3"></i>
+                <h5 class="text-muted">No payment history found</h5>
+                <p class="text-muted">Your payment records will appear here</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

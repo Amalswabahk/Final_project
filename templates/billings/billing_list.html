@@ -1,0 +1,136 @@
+{% extends 'patient_module/base.html' %}
+
+{% block title %}Billing Records{% endblock %}
+{% block header %}Billing Records{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">All Invoices</h5>
+        <div>
+            <a href="{% url 'billing_payments' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Create Invoice
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <form method="get" class="form-inline">
+                    <div class="input-group">
+                        <input type="text" name="search" class="form-control"
+                               placeholder="Search invoices..." value="{{ request.GET.search }}">
+                        <button class="btn btn-outline-secondary" type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-6 text-end">
+                <div class="btn-group" role="group">
+                    <a href="?" class="btn btn-outline-secondary {% if not request.GET.status %}active{% endif %}">
+                        All
+                    </a>
+
+
+                    <a href="?insurance_claims=true"
+                       class="btn btn-outline-info {% if request.GET.insurance_claims == 'true' %}active{% endif %}">
+                        Insurance Claims
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Invoice #</th>
+                        <th>Patient</th>
+                        <th>Date Issued</th>
+                        <th>Due Date</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Insurance</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for billing in billings %}
+                    <tr>
+                        <td>{{ billing.invoice_number }}</td>
+                        <td>{{ billing.patient }}</td>
+                        <td>{{ billing.date_issued|date:"d M Y" }}</td>
+                        <td class="{% if billing.is_overdue %}text-danger{% endif %}">
+                            {{ billing.due_date|date:"d M Y" }}
+                        </td>
+                        <td>₹{{ billing.amount }}</td>
+                        <td>
+                            <span class="badge bg-{% if billing.status == 'Paid' %}success{% elif billing.status == 'Overdue' %}danger{% else %}warning{% endif %}">
+                                {{ billing.status }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if billing.insurance_claim %}
+                            <span class="badge bg-info">Insurance</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Self-Pay</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'billing_detail' billing.pk %}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{% url 'billing_update' billing.pk %}" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center">No invoices found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="4" class="text-end">Total:</th>
+                        <th>₹{{ total_amount }}</th>
+                        <th colspan="3"></th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        {% if is_paginated %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                        Previous
+                    </a>
+                </li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                <li class="page-item {% if num == page_obj.number %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                        {{ num }}
+                    </a>
+                </li>
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                        Next
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

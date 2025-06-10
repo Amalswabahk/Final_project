@@ -1,0 +1,41 @@
+/* Admin-specific styles */
+.facility-card {
+    border-left: 4px solid #6f42c1;
+}
+
+.department-card {
+    border-left: 4px solid #20c997;
+}
+
+.resource-card {
+    border-left: 4px solid #fd7e14;
+}
+
+.user-type-badge {
+    font-size: 0.8rem;
+}
+
+.user-type-patient {
+    background-color: #0dcaf0;
+}
+
+.user-type-doctor {
+    background-color: #198754;
+}
+
+.user-type-staff {
+    background-color: #6c757d;
+}
+
+.user-type-admin {
+    background-color: #dc3545;
+}
+
+.permission-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.select2-container {
+    width: 100% !important;
+}

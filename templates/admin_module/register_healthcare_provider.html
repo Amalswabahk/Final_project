@@ -1,0 +1,165 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrastyle %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    .card {
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        border: none;
+    }
+    .card-header {
+        background-color: #4b79cf;
+        color: white;
+        border-radius: 10px 10px 0 0 !important;
+        padding: 1.5rem;
+    }
+    .card-body {
+        padding: 2rem;
+    }
+    .form-section {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    input, select, textarea {
+        border-radius: 6px !important;
+        padding: 10px 15px !important;
+    }
+    .btn {
+        border-radius: 6px;
+        padding: 10px 20px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+    .btn-primary {
+        background-color: #4b79cf;
+        border-color: #4b79cf;
+    }
+    .btn-primary:hover {
+        background-color: #3a62b5;
+        border-color: #3a62b5;
+        transform: translateY(-2px);
+    }
+    .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+    }
+    .help-text {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
+    .errorlist {
+        color: #dc3545;
+        padding-left: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0">
+                        <i class="fas fa-user-md me-2"></i> Register New Healthcare Provider
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <!-- User Information Section -->
+                        <div class="form-section">
+                            <h4 class="mb-4">
+                                <i class="fas fa-user-circle me-2"></i> User Information
+                            </h4>
+
+                            {% for field in user_form %}
+                            <div class="form-group">
+                                {{ field.label_tag }}
+                                {{ field }}
+                                {% if field.help_text %}
+                                <small class="help-text">{{ field.help_text }}</small>
+                                {% endif %}
+                                {% for error in field.errors %}
+                                <div class="errorlist">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Professional Information Section -->
+                        <div class="form-section">
+                            <h4 class="mb-4">
+                                <i class="fas fa-briefcase-medical me-2"></i> Professional Information
+                            </h4>
+
+                            {% for field in provider_form %}
+                            <div class="form-group">
+                                {{ field.label_tag }}
+                                {{ field }}
+                                {% if field.help_text %}
+                                <small class="help-text">{{ field.help_text }}</small>
+                                {% endif %}
+                                {% for error in field.errors %}
+                                <div class="errorlist">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'provider-list' %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i> Register Provider
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Add dynamic class to password fields
+    document.addEventListener('DOMContentLoaded', function() {
+        const passwordFields = document.querySelectorAll('input[type="password"]');
+        passwordFields.forEach(field => {
+            field.classList.add('form-control');
+        });
+
+        // Add form-control class to all inputs, selects, and textareas
+        const formControls = document.querySelectorAll('input:not([type="checkbox"]):not([type="radio"]), select, textarea');
+        formControls.forEach(control => {
+            control.classList.add('form-control');
+        });
+
+        // Add form-check-input to checkboxes and radios
+        const checkboxes = document.querySelectorAll('input[type="checkbox"], input[type="radio"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.classList.add('form-check-input');
+            if (checkbox.type === 'checkbox') {
+                checkbox.parentElement.classList.add('form-check');
+                checkbox.nextElementSibling.classList.add('form-check-label');
+            }
+        });
+    });
+</script>
+{% endblock %}

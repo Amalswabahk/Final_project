@@ -1,0 +1,170 @@
+{% extends "patient_module/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Left Side - Appointment Creation Form -->
+        <div class="col-md-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 bg-primary text-white">
+                    <h6 class="m-0 font-weight-bold">Create New Appointment</h6>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'appointment_create' %}">
+                        {% csrf_token %}
+                        
+                        <!-- Patient Selection -->
+                        <div class="form-group">
+                            <label for="patient">Patient</label>
+                            <select class="form-control" id="patient" name="patient" required>
+                                <option value="">Select Patient</option>
+                                {% for patient in patients %}
+                                    <option value="{{ patient.id }}">{{ patient.user.get_full_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <!-- Healthcare Provider Selection -->
+                        <div class="form-group">
+                            <label for="provider">Healthcare Provider</label>
+                            <select class="form-control" id="provider" name="provider" required>
+                                <option value="">Select Provider</option>
+                                {% for provider in providers %}
+                                    <option value="{{ provider.id }}">Dr. {{ provider.user.get_full_name }} ({{ provider.specialization }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <!-- Date and Time -->
+                        <div class="form-group">
+                            <label for="date_time">Date & Time</label>
+                            <input type="datetime-local" class="form-control" id="date_time" name="date_time" required>
+                        </div>
+                        
+                        <!-- Status -->
+                        <div class="form-group">
+                            <label for="status">Status</label>
+                            <select class="form-control" id="status" name="status" required>
+                                {% for value, label in status_choices %}
+                                    <option value="{{ value }}" {% if value == 'Scheduled' %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <!-- Reason -->
+                        <div class="form-group">
+                            <label for="reason">Reason</label>
+                            <textarea class="form-control" id="reason" name="reason" rows="3" required></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-block">Create Appointment</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Side - Appointments List -->
+        <div class="col-md-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 bg-primary text-white">
+                    <h6 class="m-0 font-weight-bold">Upcoming Appointments</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="appointmentsTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Date & Time</th>
+                                    <th>Patient</th>
+                                    <th>Provider</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for appointment in appointments %}
+                                <tr>
+                                    <td>{{ appointment.date_time|date:"M d, Y H:i" }}</td>
+                                    <td>{{ appointment.patient.user.get_full_name }}</td>
+                                    <td>Dr. {{ appointment.Healthcareprovider.user.get_full_name }}</td>
+                                    <td>
+                                        <span class="badge badge-{% if appointment.status == 'Completed' %}success{% elif appointment.status == 'Cancelled' %}danger{% else %}info{% endif %}">
+                                            {{ appointment.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'appointment_edit' appointment.id %}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'appointment_delete' appointment.id %}" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center">No appointments found</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card {
+        border-radius: 0.35rem;
+    }
+    .card-header {
+        border-radius: 0.35rem 0.35rem 0 0 !important;
+    }
+    .badge {
+        font-size: 0.85em;
+        font-weight: 500;
+        padding: 0.35em 0.65em;
+    }
+    .badge-success {
+        background-color: #1cc88a;
+    }
+    .badge-danger {
+        background-color: #e74a3b;
+    }
+    .badge-info {
+        background-color: #36b9cc;
+    }
+    .table-responsive {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Initialize DataTable for appointments table
+        $('#appointmentsTable').DataTable({
+            "order": [[0, "asc"]],
+            "responsive": true,
+            "columnDefs": [
+                { "orderable": false, "targets": [4] }
+            ]
+        });
+        
+        // Set minimum datetime for appointment to current time
+        const now = new Date();
+        const timezoneOffset = now.getTimezoneOffset() * 60000;
+        const localISOTime = (new Date(now - timezoneOffset)).toISOString().slice(0, 16);
+        document.getElementById('date_time').min = localISOTime;
+    });
+</script>
+{% endblock %}

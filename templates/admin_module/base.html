@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal - {% block title %}{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sidebar-width: 280px;
+            --sidebar-mini-width: 80px;
+            --primary-color: #4e73df;
+            --primary-hover: #3a5ec0;
+            --sidebar-bg: #1a2035;
+            --sidebar-active: rgba(255, 255, 255, 0.1);
+            --sidebar-text: rgba(255, 255, 255, 0.8);
+            --content-bg: #f8fafc;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --navbar-height: 56px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--content-bg);
+            color: #2d3748;
+            padding-top: var(--navbar-height);
+        }
+
+        /* Sidebar Styles */
+        .admin-sidebar {
+            background-color: var(--sidebar-bg);
+            color: white;
+            height: calc(100vh - var(--navbar-height));
+            position: fixed;
+            width: var(--sidebar-width);
+            padding: 1.5rem 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            overflow-x: hidden;
+            top: var(--navbar-height);
+        }
+
+        .admin-sidebar.minimized {
+            width: var(--sidebar-mini-width);
+        }
+
+        .admin-sidebar.minimized .sidebar-brand-text,
+        .admin-sidebar.minimized .nav-label,
+        .admin-sidebar.minimized .nav-link-text {
+            display: none;
+        }
+
+        .admin-sidebar.minimized .sidebar-brand {
+            justify-content: center;
+            padding: 0 0.5rem 1.5rem;
+        }
+
+        .admin-sidebar.minimized .sidebar-brand img {
+            margin-right: 0;
+        }
+
+        .admin-sidebar.minimized .nav-link {
+            justify-content: center;
+            padding: 0.75rem;
+        }
+
+        .admin-sidebar.minimized .nav-link i {
+            margin-right: 0;
+            font-size: 1.3rem;
+        }
+
+        .admin-sidebar.minimized .nav-item {
+            position: relative;
+        }
+
+        .admin-sidebar.minimized .nav-item:hover .nav-link-text {
+            display: block;
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: var(--sidebar-bg);
+            padding: 0.5rem 1rem;
+            border-radius: 0 4px 4px 0;
+            white-space: nowrap;
+            z-index: 1000;
+            margin-left: 10px;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            padding: 0 1.5rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-brand img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-brand-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-divider {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin: 1rem 0;
+        }
+
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-link {
+            color: var(--sidebar-text);
+            padding: 0.75rem 1.5rem;
+            margin: 0.25rem 0;
+            border-radius: 0.375rem;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: white;
+            background-color: var(--sidebar-active);
+        }
+
+        .nav-link i {
+            font-size: 1.1rem;
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .nav-link-text {
+            transition: all 0.3s;
+        }
+
+        .nav-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: rgba(255, 255, 255, 0.4);
+            padding: 0.5rem 1.5rem;
+            margin-top: 1rem;
+            transition: all 0.3s;
+        }
+
+        /* Main Content Styles */
+        .admin-content {
+            margin-left: var(--sidebar-width);
+            padding: 1.5rem;
+            min-height: calc(100vh - var(--navbar-height));
+            transition: all 0.3s ease;
+        }
+
+
+        .admin-sidebar.minimized ~ .admin-content {
+            margin-left: var(--sidebar-mini-width);
+        }
+
+        /* Top Navigation Bar */
+        .admin-topbar {
+            background-color: white;
+            box-shadow: var(--card-shadow);
+            height: var(--navbar-height);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1.5rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1100;
+            width: 100%;
+        }
+
+        .admin-sidebar.minimized ~ .admin-topbar {
+            margin-left: var(--sidebar-mini-width);
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .sidebar-toggler {
+            background: none;
+            border: none;
+            color: #4a5568;
+            font-size: 1.25rem;
+            margin-right: 1rem;
+            cursor: pointer;
+        }
+
+        .user-dropdown {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .user-dropdown img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        .user-dropdown .user-name {
+            font-weight: 500;
+            margin-right: 0.5rem;
+        }
+
+        /* Rest of your existing styles... */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1a202c;
+            margin: 0;
+        }
+
+        .card {
+            border: none;
+            border-radius: 0.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 992px) {
+            .admin-sidebar {
+                transform: translateX(-100%);
+                width: var(--sidebar-width);
+            }
+
+            .admin-sidebar.show {
+                transform: translateX(0);
+            }
+
+            .admin-sidebar.minimized {
+                width: var(--sidebar-mini-width);
+            }
+
+            .admin-content, .admin-topbar {
+                margin-left: 0;
+            }
+
+            .mobile-toggler {
+                display: block !important;
+            }
+        }
+
+        /* Mobile Toggle Button */
+        .mobile-toggler {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1050;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Mobile Toggle Button -->
+    <button class="mobile-toggler d-lg-none" id="mobileToggle">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Admin Top Navigation Bar -->
+    <div class="admin-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggler d-none d-lg-inline-block" id="sidebarToggle">
+                <i class="bi bi-list"></i>
+            </button>
+            <div class="d-lg-none">
+                <h5 class="mb-0">{% block mobile_header %}{% endblock %}</h5>
+            </div>
+        </div>
+        <div class="user-dropdown dropdown">
+            <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <img src="{% static 'images/patient-placeholder.jpg' %}" alt="Profile" class="rounded-circle">
+                <span class="user-name d-none d-sm-inline">{{ request.user.get_full_name|default:"Admin" }}</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
+                <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i> Profile</a></li>
+                <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i> Settings</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="bi bi-box-arrow-left me-2"></i> Logout</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Admin Sidebar -->
+    <div class="admin-sidebar" id="adminSidebar">
+        <div class="sidebar-brand">
+            <img src="{% static 'images/patient-placeholder.jpg' %}" alt="Profile" class="rounded-circle">
+            <div class="sidebar-brand-text">
+                {{ request.user.get_full_name|default:"Admin" }}
+                <div class="small text-muted">Administrator</div>
+            </div>
+        </div>
+
+        <div class="sidebar-divider"></div>
+
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a href="{% url 'admin_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+                    <i class="bi bi-speedometer2"></i>
+                    <span class="nav-link-text">Dashboard</span>
+                </a>
+            </li>
+
+            <li class="nav-label">User Management</li>
+            <li class="nav-item">
+                <a href="{% url 'user_management' %}" class="nav-link {% if request.resolver_match.url_name == 'user_management' %}active{% endif %}">
+                    <i class="bi bi-people"></i>
+                    <span class="nav-link-text">Users</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'group_management' %}" class="nav-link {% if request.resolver_match.url_name == 'group_management' %}active{% endif %}">
+                    <i class="bi bi-shield-lock"></i>
+                    <span class="nav-link-text">Groups & Permissions</span>
+                </a>
+            </li>
+
+            <li class="nav-label">Facility Management</li>
+            <li class="nav-item">
+                <a href="{% url 'facility_management' %}" class="nav-link {% if request.resolver_match.url_name == 'facility_management' %}active{% endif %}">
+                    <i class="bi bi-building"></i>
+                    <span class="nav-link-text">Facilities</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'department_management' %}" class="nav-link {% if request.resolver_match.url_name == 'department_management' %}active{% endif %}">
+                    <i class="bi bi-door-open"></i>
+                    <span class="nav-link-text">Departments</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'resource_management' %}" class="nav-link {% if request.resolver_match.url_name == 'resource_management' %}active{% endif %}">
+                    <i class="bi bi-pc-display"></i>
+                    <span class="nav-link-text">Resources</span>
+                </a>
+            </li>
+
+            <li class="nav-label">Appointments</li>
+            <li class="nav-item">
+                <a href="{% url 'admin_appointment_management' %}" class="nav-link {% if request.resolver_match.url_name == 'admin_appointment_management' %}active{% endif %}">
+                    <i class="bi bi-calendar-check"></i>
+                    <span class="nav-link-text">Appointments</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main content -->
+    <main class="admin-content">
+        <div class="page-header">
+            <h1 class="page-title">{% block header %}{% endblock %}</h1>
+            <div class="btn-toolbar">
+                {% block header_buttons %}{% endblock %}
+            </div>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="bi {% if message.tags == 'success' %}bi-check-circle-fill{% elif message.tags == 'error' %}bi-exclamation-circle-fill{% else %}bi-info-circle-fill{% endif %} me-2"></i>
+                        <div>{{ message }}</div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Toggle sidebar on desktop
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            document.getElementById('adminSidebar').classList.toggle('minimized');
+        });
+
+        // Toggle sidebar on mobile
+        document.getElementById('mobileToggle').addEventListener('click', function() {
+            document.getElementById('adminSidebar').classList.toggle('show');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('adminSidebar');
+            const mobileBtn = document.getElementById('mobileToggle');
+
+            if (window.innerWidth < 992 &&
+                !sidebar.contains(event.target) &&
+                event.target !== mobileBtn &&
+                !mobileBtn.contains(event.target)) {
+                sidebar.classList.remove('show');
+            }
+        });
+
+        // Active link highlighting
+        const currentUrl = window.location.pathname;
+        document.querySelectorAll('.nav-link').forEach(link => {
+            if (link.getAttribute('href') === currentUrl) {
+                link.classList.add('active');
+            }
+        });
+
+        // Tooltip for minimized sidebar items
+        $(document).ready(function() {
+            $('[data-bs-toggle="tooltip"]').tooltip();
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

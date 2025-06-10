@@ -1,0 +1,204 @@
+{% extends 'doctor_module/base.html' %}
+
+{% block title %}My Schedule - Dr. {{ request.user.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-calendar-alt me-2"></i> My Schedule</h2>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addScheduleModal">
+                    <i class="fas fa-plus me-1"></i> Add Availability
+                </button>
+            </div>
+
+            <!-- Weekly Schedule View -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between">
+                        <span>Weekly Availability</span>
+                        <div>
+                            <button class="btn btn-sm btn-light" id="prevWeek">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <span class="mx-2" id="currentWeekRange">Loading...</span>
+                            <button class="btn btn-sm btn-light" id="nextWeek">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-bordered mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 14%">Day</th>
+                                    <th style="width: 14%">Monday</th>
+                                    <th style="width: 14%">Tuesday</th>
+                                    <th style="width: 14%">Wednesday</th>
+                                    <th style="width: 14%">Thursday</th>
+                                    <th style="width: 14%">Friday</th>
+                                    <th style="width: 14%">Saturday</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for time_slot in time_slots %}
+                                <tr>
+                                    <td class="text-center">{{ time_slot }}</td>
+                                    {% for day in days %}
+                                    <td class="availability-cell" data-day="{{ day|lower }}" data-time="{{ time_slot }}">
+                                        <!-- Availability slots will be loaded via JavaScript -->
+                                    </td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upcoming Appointments -->
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    Upcoming Appointments
+                </div>
+                <div class="card-body">
+                    {% if appointments %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date & Time</th>
+                                    <th>Patient</th>
+                                    <th>Reason</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for appointment in appointments %}
+                                <tr>
+                                    <td>{{ appointment.date }} at {{ appointment.time }}</td>
+                                    <td>{{ appointment.patient.user.get_full_name }}</td>
+                                    <td>{{ appointment.reason|truncatechars:30 }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if appointment.status == 'confirmed' %}success{% elif appointment.status == 'pending' %}warning{% else %}danger{% endif %}">
+                                            {{ appointment.status|title }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'appointment_detail' appointment.id %}" class="btn btn-sm btn-outline-primary">
+                                            View
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No upcoming appointments scheduled.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Availability Modal -->
+<div class="modal fade" id="addScheduleModal" tabindex="-1" aria-labelledby="addScheduleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addScheduleModalLabel">Add Availability</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="{% url 'add_availability' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="dayOfWeek" class="form-label">Day of Week</label>
+                        <select class="form-select" id="dayOfWeek" name="day_of_week" required>
+                            <option value="">Select day</option>
+                            <option value="monday">Monday</option>
+                            <option value="tuesday">Tuesday</option>
+                            <option value="wednesday">Wednesday</option>
+                            <option value="thursday">Thursday</option>
+                            <option value="friday">Friday</option>
+                            <option value="saturday">Saturday</option>
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="startTime" class="form-label">Start Time</label>
+                            <input type="time" class="form-control" id="startTime" name="start_time" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="endTime" class="form-label">End Time</label>
+                            <input type="time" class="form-control" id="endTime" name="end_time" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="repeats" class="form-label">Repeat</label>
+                        <select class="form-select" id="repeats" name="repeats">
+                            <option value="no_repeat">Does not repeat</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="biweekly">Bi-weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Availability</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize the current week display
+    updateWeekDisplay(new Date());
+    
+    // Navigation between weeks
+    document.getElementById('prevWeek').addEventListener('click', function() {
+        // Logic to go to previous week
+    });
+    
+    document.getElementById('nextWeek').addEventListener('click', function() {
+        // Logic to go to next week
+    });
+    
+    // Function to update the week range display
+    function updateWeekDisplay(date) {
+        const startOfWeek = new Date(date);
+        startOfWeek.setDate(date.getDate() - date.getDay() + 1); // Monday
+        
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6); // Sunday
+        
+        document.getElementById('currentWeekRange').textContent = 
+            `${startOfWeek.toLocaleDateString()} - ${endOfWeek.toLocaleDateString()}`;
+        
+        // Here you would load availability for this week via AJAX
+    }
+    
+    // Handle clicks on availability cells
+    document.querySelectorAll('.availability-cell').forEach(cell => {
+        cell.addEventListener('click', function() {
+            const day = this.dataset.day;
+            const time = this.dataset.time;
+            // Open modal to edit this time slot
+        });
+    });
+});
+</script>
+{% endblock %}

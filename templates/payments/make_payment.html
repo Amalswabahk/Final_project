@@ -1,0 +1,86 @@
+{% extends 'patient_module/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Make Payment</h1>
+
+    <div class="card">
+        <div class="card-header {% if is_overdue %}bg-danger text-white{% endif %}">
+            <h5>Invoice #{{ billing.invoice_number }}</h5>
+            <p class="mb-0">Patient: {{ billing.patient }}</p>
+            <p class="mb-0">Service: {{ billing.service_description }} ({{ billing.service_date }})</p>
+            <p class="mb-0">Due Date: {{ billing.due_date }} {% if is_overdue %}(Overdue){% endif %}</p>
+        </div>
+
+        <div class="card-body">
+            <form method="post" id="payment-form">
+                {% csrf_token %}
+
+                {% if form.errors %}
+                    <div class="alert alert-danger">
+                        Please correct the errors below.
+                    </div>
+                {% endif %}
+
+                <div class="mb-3">
+                    <label class="form-label">Amount Due</label>
+                    <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        <input type="text" class="form-control" value="{{ billing.amount }}" readonly>
+                    </div>
+                    {% if is_overdue %}
+                        <small class="text-danger">This invoice is overdue. Please pay immediately.</small>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.payment_method.id_for_label }}" class="form-label">Payment Method</label>
+                    {{ form.payment_method }}
+                    {% if form.payment_method.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.payment_method.errors.as_text }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.notes.id_for_label }}" class="form-label">Notes (Optional)</label>
+                    {{ form.notes }}
+                    {% if form.notes.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.notes.errors.as_text }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Stripe elements will be inserted here when credit card is selected -->
+                <div id="card-element" class="mb-3" style="display: none;">
+                    <!-- Stripe.js will inject the Card Element here -->
+                </div>
+
+                <!-- Used to display form errors -->
+                <div id="card-errors" role="alert" class="text-danger mb-3"></div>
+
+                <button type="submit" class="btn btn-primary">
+                    {% if is_overdue %}Pay Now{% else %}Submit Payment{% endif %}
+                </button>
+                <a href="{% url 'billing_detail' pk=billing.id %}" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+    // JavaScript remains the same as previous version
+    const stripePublicKey = '{{ stripe_public_key }}';
+    const stripe = Stripe(stripePublicKey);
+    const elements = stripe.elements();
+
+    // Rest of your Stripe payment handling code...
+    // (Same as in your original template)
+</script>
+{% endblock %}

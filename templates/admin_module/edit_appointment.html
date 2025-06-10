@@ -1,0 +1,53 @@
+{% extends 'admin_module/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <h2>Appointment Details</h2>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Appointment Information</h5>
+            <dl class="row">
+                <dt class="col-sm-3">Patient:</dt>
+                <dd class="col-sm-9">{{ appointment.patient.user.get_full_name }}</dd>
+
+                <dt class="col-sm-3">Provider:</dt>
+                <dd class="col-sm-9">{{ appointment.healthcareprovider.user.get_full_name }}</dd>
+
+                <dt class="col-sm-3">Date & Time:</dt>
+                <dd class="col-sm-9">{{ appointment.date_time|date:"F j, Y H:i" }}</dd>
+
+                <dt class="col-sm-3">Purpose:</dt>
+                <dd class="col-sm-9">{{ appointment.purpose }}</dd>
+
+                <dt class="col-sm-3">Notes:</dt>
+                <dd class="col-sm-9">{{ appointment.notes|default:"-" }}</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Update Status</h5>
+            <form method="post">
+                {% csrf_token %}
+
+               <div class="form-group">
+                    <label for="status">Current Status:</label>
+                    <select class="form-control" id="status" name="status">
+                        {% for choice in status %}
+                            <option value="{{ choice.0 }}" {% if choice.0 == current_status %}selected{% endif %}>
+                                {{ choice.1 }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Update Status</button>
+                <a href="{% url 'admin_appointment_management' %}" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

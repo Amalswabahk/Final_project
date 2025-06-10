@@ -1,0 +1,89 @@
+{% extends 'patient_module/base.html' %}
+
+{% block title %}Prescription - {{ prescription.medication }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="fas fa-prescription me-2"></i>
+                    Prescription Details
+                </h2>
+                <span class="badge bg-{% if prescription.is_active %}success{% else %}secondary{% endif %}">
+                    {% if prescription.is_active %}Active{% else %}Inactive{% endif %}
+                </span>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5 class="text-muted">Patient</h5>
+                            <h4>{{ prescription.patient.user.get_full_name }}</h4>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="text-muted">Prescribing Doctor</h5>
+                            <h4>Dr. {{ prescription.doctor.user.get_full_name }}</h4>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5 class="text-muted">Medication</h5>
+                            <h4 class="text-primary">{{ prescription.medication }}</h4>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="text-muted">Date Prescribed</h5>
+                            <h4>{{ prescription.date_prescribed|date:"F j, Y" }}</h4>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <h5 class="text-muted">Dosage</h5>
+                            <p class="lead">{{ prescription.dosage }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h5 class="text-muted">Frequency</h5>
+                            <p class="lead">{{ prescription.frequency }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h5 class="text-muted">Duration</h5>
+                            <p class="lead">{{ prescription.duration }}</p>
+                        </div>
+                    </div>
+
+                    {% if prescription.instructions %}
+                    <div class="mb-4">
+                        <h5 class="text-muted">Special Instructions</h5>
+                        <div class="bg-light p-3 rounded">
+                            {{ prescription.instructions|linebreaks }}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{% url 'prescription_list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Back to List
+                        </a>
+                        {% if request.user.healthcareprovider %}
+                        <div>
+                            <a href="{% url 'prescription_update' prescription.pk %}" class="btn btn-outline-primary me-2">
+                                <i class="fas fa-edit me-1"></i> Edit
+                            </a>
+                            <a href="{% url 'prescription_print' prescription.pk %}" class="btn btn-primary" target="_blank">
+                                <i class="fas fa-print me-1"></i> Print
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

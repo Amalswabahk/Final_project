@@ -1,0 +1,1239 @@
+{% extends "home/base.html" %}
+{% load static %}
+
+{% block content %}
+    <!-- Hero Section with Gradient Background -->
+    <section class="hero-section text-white position-relative"
+         style="background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+                 url('{% static 'images/hero-doctor.jpg' %}') no-repeat center center;
+                background-size: cover;
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                overflow: hidden;">
+
+        <!-- Wave divider at bottom -->
+        <div class="wave-divider position-absolute bottom-0 start-0 w-100">
+            <svg viewBox="0 0 1200 120" preserveAspectRatio="none" style="transform: rotate(180deg);">
+                <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".25" fill="#fff"></path>
+                <path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" opacity=".5" fill="#fff"></path>
+                <path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" fill="#fff"></path>
+            </svg>
+        </div>
+
+        <div class="container py-5">
+            <div class="row align-items-center justify-content-center" style="min-height: calc(100vh - 2 * 3rem);"> <!-- Adjusted for container padding -->
+                <div class="col-lg-8 text-center text-lg-start">
+                    <h1 class="display-4 fw-bold mb-4 animate-on-scroll animate-slide-down">
+                        {% if hospital %}
+                            {{ hospital.name }}
+                        {% else %}
+                            Your Health Is Our Priority
+                        {% endif %}
+                    </h1>
+                    <p class="lead mb-5 fs-5 animate-on-scroll animate-slide-down" style="transition-delay: 0.2s">
+                        {% if hospital %}
+                            {{ hospital.tagline|default:"Compassionate care. Advanced medicine. Trusted by generations." }}
+                        {% else %}
+                            Compassionate care. Advanced medicine. Trusted by generations.
+                        {% endif %}
+                    </p>
+                    <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start animate-on-scroll animate-slide-up" style="transition-delay: 0.4s">
+                        <a href="#appointment" class="btn btn-light btn-lg px-4 py-3 rounded-pill shadow-sm btn-hover-effect">
+                            <i class="bi bi-calendar-plus me-2"></i> Book Appointment
+                        </a>
+                        <a href="#departments" class="btn btn-outline-light btn-lg px-4 py-3 rounded-pill btn-hover-effect">
+                            <i class="bi bi-heart-pulse me-2"></i> Our Services
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Stats Bar -->
+    <div class="stats-bar bg-white py-4 shadow-sm animate-on-scroll animate-slide-up">
+        <div class="container">
+            <div class="row g-4 text-center">
+                <div class="col-md-3">
+                    <div class="display-5 fw-bold text-primary">150+</div>
+                    <div class="text-muted">Expert Doctors</div>
+                </div>
+                <div class="col-md-3">
+                    <div class="display-5 fw-bold text-primary">25+</div>
+                    <div class="text-muted">Medical Departments</div>
+                </div>
+                <div class="col-md-3">
+                    <div class="display-5 fw-bold text-primary">10K+</div>
+                    <div class="text-muted">Patients Yearly</div>
+                </div>
+                <div class="col-md-3">
+                    <div class="display-5 fw-bold text-primary">24/7</div>
+                    <div class="text-muted">Emergency Services</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="floating-sidebar">
+          <ul class="sidebar-menu">
+            <li class="appointment-option">
+              <a href="#appointment">
+                <i class="bi bi-calendar-plus"></i>
+                <span class="option-label">Book Appointment</span>
+              </a>
+            </li>
+            <li class="doctors-option">
+              <a href="#doctors">
+                <i class="bi bi-people-fill"></i>
+                <span class="option-label">Our Doctors</span>
+              </a>
+            </li>
+            <li class="departments-option">
+              <a href="#departments">
+                <i class="bi bi-heart-pulse"></i>
+                <span class="option-label">Departments</span>
+              </a>
+            </li>
+            <li class="contact-option">
+              <a href="#contact">
+                <i class="bi bi-telephone"></i>
+                <span class="option-label">Contact Us</span>
+              </a>
+            </li>
+            <li class="emergency-option">
+              <a href="tel:+1234567890">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span class="option-label">Emergency</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+
+    <!-- Features Section with Icons -->
+    <section class="container my-5 py-5 position-relative">
+    <!-- Decorative elements -->
+        <div class="position-absolute top-0 start-0 w-100 h-100" style="
+            background: radial-gradient(circle at 20% 50%, rgba(13, 110, 253, 0.03) 0%, transparent 30%);
+            pointer-events: none;
+            z-index: -1;
+        "></div>
+
+        <div class="text-center mb-5 animate-on-scroll animate-fade-in">
+            <h2 class="fw-bold display-5 mb-3">Why Choose Us</h2>
+            <p class="lead text-muted mb-4" style="max-width: 700px; margin: 0 auto;">Exceptional care for every stage of your health journey</p>
+            <div class="divider mx-auto" style="
+                height: 4px;
+                width: 80px;
+                background: linear-gradient(90deg, #0d6efd 0%, rgba(13, 110, 253, 0.3) 100%);
+                border-radius: 2px;
+            "></div>
+        </div>
+
+        <div class="row g-4 justify-content-center">
+            <!-- Card 1 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card h-100 p-4 text-center border-0 rounded-4 animate-on-scroll animate-slide-up" style="
+                    background: white;
+                    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+                    transition: all 0.3s ease;
+                    border: 1px solid rgba(0, 0, 0, 0.03);
+                ">
+                    <div class="icon-wrapper mx-auto mb-4" style="
+                        width: 80px;
+                        height: 80px;
+                        background: linear-gradient(135deg, rgba(13, 110, 253, 0.1) 0%, rgba(13, 110, 253, 0.05) 100%);
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        transition: all 0.3s ease;
+                    ">
+                        <i class="fas fa-user-md fs-3 text-primary"></i>
+                    </div>
+                    <h4 class="mb-3 fw-semibold">Expert Specialists</h4>
+                    <p class="text-muted mb-0 px-lg-3">Board-certified physicians with extensive experience in their fields provide personalized treatment plans.</p>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card h-100 p-4 text-center border-0 rounded-4 animate-on-scroll animate-slide-up" style="
+                    background: white;
+                    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+                    transition: all 0.3s ease;
+                    border: 1px solid rgba(0, 0, 0, 0.03);
+                    transition-delay: 0.1s;
+                ">
+                    <div class="icon-wrapper mx-auto mb-4" style="
+                        width: 80px;
+                        height: 80px;
+                        background: linear-gradient(135deg, rgba(13, 110, 253, 0.1) 0%, rgba(13, 110, 253, 0.05) 100%);
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        transition: all 0.3s ease;
+                    ">
+                        <i class="fas fa-procedures fs-3 text-primary"></i>
+                    </div>
+                    <h4 class="mb-3 fw-semibold">Advanced Technology</h4>
+                    <p class="text-muted mb-0 px-lg-3">State-of-the-art diagnostic equipment and minimally invasive surgical techniques for better outcomes.</p>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card h-100 p-4 text-center border-0 rounded-4 animate-on-scroll animate-slide-up" style="
+                    background: white;
+                    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+                    transition: all 0.3s ease;
+                    border: 1px solid rgba(0, 0, 0, 0.03);
+                    transition-delay: 0.2s;
+                ">
+                    <div class="icon-wrapper mx-auto mb-4" style="
+                        width: 80px;
+                        height: 80px;
+                        background: linear-gradient(135deg, rgba(13, 110, 253, 0.1) 0%, rgba(13, 110, 253, 0.05) 100%);
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        transition: all 0.3s ease;
+                    ">
+                        <i class="fas fa-heartbeat fs-3 text-primary"></i>
+                    </div>
+                    <h4 class="mb-3 fw-semibold">Patient-Centered</h4>
+                    <p class="text-muted mb-0 px-lg-3">Your comfort and well-being are our top priorities with compassionate care at every step.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- About Section with Image -->
+    <section id="about" class="bg-light py-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-5 mb-lg-0 animate-on-scroll animate-slide-left">
+                    <div class="pe-lg-5">
+                        <span class="badge bg-primary bg-opacity-10 text-primary mb-3">About Us</span>
+                        <h2 class="fw-bold mb-4">Committed to Excellence in Healthcare</h2>
+                        {% if hospital %}
+                            <p class="lead">{{ hospital.description }}</p>
+                        {% else %}
+                            <p class="lead">Our hospital has been a trusted healthcare provider for over 25 years, combining cutting-edge medical technology with compassionate care.</p>
+                            <p>Founded with a vision to create a healthier community, we've grown to become a regional leader in patient outcomes and satisfaction.</p>
+                        {% endif %}
+                        <div class="row mt-4">
+                            <div class="col-6 mb-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-primary bg-opacity-10 p-3 rounded me-3">
+                                        <i class="bi bi-calendar-check text-primary fs-4"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="mb-0 fw-bold">{{ hospital.established_date|date:"Y"|default:"1998" }}</h5>
+                                        <small class="text-muted">Established</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-primary bg-opacity-10 p-3 rounded me-3">
+                                        <i class="bi bi-people text-primary fs-4"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="mb-0 fw-bold">150+</h5>
+                                        <small class="text-muted">Specialists</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="#departments" class="btn btn-outline-primary mt-3 btn-hover-effect">Our Services</a>
+                    </div>
+                </div>
+                <div class="col-lg-6 animate-on-scroll animate-slide-right">
+                    <div class="position-relative">
+                        <img src="{% static 'images/hospital-building.jpg' %}" alt="Hospital" class="img-fluid rounded-3 shadow image-loading" onload="this.classList.remove('image-loading')">
+                        <div class="position-absolute bottom-0 start-0 bg-white p-4 m-4 rounded shadow-sm animate-on-scroll animate-slide-up" style="max-width: 300px; transition-delay: 0.3s">
+                            <h5 class="fw-bold mb-3">Emergency Care</h5>
+                            <p class="small text-muted mb-2">24/7 emergency services with rapid response teams</p>
+                            <a href="tel:+1234567890" class="btn btn-danger btn-sm btn-hover-effect">Call Emergency</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Departments Section -->
+    <section id="departments" class="py-5 my-5">
+        <div class="container">
+            <div class="text-center mb-5 animate-on-scroll animate-fade-in">
+                <span class="badge bg-primary bg-opacity-10 text-primary mb-3">Services</span>
+                <h2 class="fw-bold">Our Medical Departments</h2>
+                <p class="lead text-muted">Comprehensive care across all specialties</p>
+                <div class="divider mx-auto"></div>
+            </div>
+
+           <div class="row g-4">
+                {% if hospital and hospital.departments.all %}
+                    {% for department in hospital.departments.all|slice:":6" %}
+                        <div class="col-md-4">
+                            <div class="department-card card h-100 border-0 shadow-sm rounded-3 overflow-hidden animate-on-scroll animate-zoom-in card-hover-effect"
+                                 style="transition-delay: {% widthratio forloop.counter0 1 0.1 %}s"><div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="bg-primary bg-opacity-10 p-2 rounded me-3">
+                                            <i class="{{ department.icon|default:'fas fa-heartbeat' }} text-primary"></i>
+                                        </div>
+                                        <h5 class="mb-0">{{ department.name }}</h5>
+                                    </div>
+                                    <p class="text-muted">{{ department.description|truncatewords:20 }}</p>
+                                    <a href="#" class="btn btn-link ps-0 btn-hover-effect">Learn More →</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <!-- Default department cards if no data -->
+                    <div class="col-md-4">
+                        <div class="department-card card h-100 border-0 shadow-sm rounded-3 overflow-hidden animate-on-scroll animate-zoom-in card-hover-effect">
+                            <div class="card-img-top department-img image-loading" style="background-image: url('{% static 'images/cardiology.jpg' %}'); height: 180px;" onload="this.classList.remove('image-loading')"></div>
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="bg-primary bg-opacity-10 p-2 rounded me-3">
+                                        <i class="fas fa-heartbeat text-primary"></i>
+                                    </div>
+                                    <h5 class="mb-0">Cardiology</h5>
+                                </div>
+                                <p class="text-muted">Comprehensive heart care and treatment for all cardiovascular conditions.</p>
+                                <a href="#" class="btn btn-link ps-0 btn-hover-effect">Learn More →</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="department-card card h-100 border-0 shadow-sm rounded-3 overflow-hidden animate-on-scroll animate-zoom-in card-hover-effect" style="transition-delay: 0.1s">
+                            <div class="card-img-top department-img image-loading" style="background-image: url('{% static 'images/neurology.jpg' %}'); height: 180px;" onload="this.classList.remove('image-loading')"></div>
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="bg-primary bg-opacity-10 p-2 rounded me-3">
+                                        <i class="fas fa-brain text-primary"></i>
+                                    </div>
+                                    <h5 class="mb-0">Neurology</h5>
+                                </div>
+                                <p class="text-muted">Expert diagnosis and treatment for disorders of the nervous system.</p>
+                                <a href="#" class="btn btn-link ps-0 btn-hover-effect">Learn More →</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="department-card card h-100 border-0 shadow-sm rounded-3 overflow-hidden animate-on-scroll animate-zoom-in card-hover-effect" style="transition-delay: 0.2s">
+                            <div class="card-img-top department-img image-loading" style="background-image: url('{% static 'images/orthopedics.jpg' %}'); height: 180px;" onload="this.classList.remove('image-loading')"></div>
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="bg-primary bg-opacity-10 p-2 rounded me-3">
+                                        <i class="fas fa-bone text-primary"></i>
+                                    </div>
+                                    <h5 class="mb-0">Orthopedics</h5>
+                                </div>
+                                <p class="text-muted">Specialized care for musculoskeletal injuries and conditions.</p>
+                                <a href="#" class="btn btn-link ps-0 btn-hover-effect">Learn More →</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+           <div class="text-center mt-5 animate-on-scroll animate-fade-in">
+                <a href="{% url 'department-list' %}"
+                   class="btn btn-primary px-4 py-3 btn-hover-effect transition-all duration-300 ease-in-out"
+                   role="button"
+                   aria-label="View all departments">
+                    View All Departments
+                    <span class="ml-2">→</span>  <!-- Optional arrow for better visual cue -->
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Doctors Section with Carousel -->
+    <section id="doctors" class="bg-light py-5">
+        <div class="container">
+            <div class="text-center mb-5 animate-on-scroll animate-fade-in">
+                <span class="badge bg-primary bg-opacity-10 text-primary mb-3">Team</span>
+                <h2 class="fw-bold">Meet Our Specialists</h2>
+                <p class="lead text-muted">Highly qualified professionals dedicated to your health</p>
+                <div class="divider mx-auto"></div>
+            </div>
+
+
+           <div class="text-center mt-5 animate-on-scroll animate-fade-in">
+                <a href="{% url 'provider-list' %}" class="btn btn-outline-primary px-4 py-3 btn-hover-effect">
+                    <i class="bi bi-people-fill me-2"></i> View All Doctors
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="py-5 my-5">
+        <div class="container">
+            <div class="text-center mb-5 animate-on-scroll animate-fade-in">
+                <span class="badge bg-primary bg-opacity-10 text-primary mb-3">Testimonials</span>
+                <h2 class="fw-bold">What Our Patients Say</h2>
+                <p class="lead text-muted">Trusted by thousands of patients every year</p>
+                <div class="divider mx-auto"></div>
+            </div>
+
+                   <div class="row g-4">
+                {% if hospital and hospital.testimonials.all %}
+                    {% for testimonial in hospital.testimonials.all|slice:":3" %}
+                        <div class="col-md-4">
+                            <div class="card testimonial-card h-100 border-0 shadow-sm rounded-3 p-4 animate-on-scroll animate-slide-up"
+                                 style="transition-delay: {% widthratio forloop.counter0 1 0.15 %}s">
+                                <div class="d-flex align-items-center mb-4">
+                                    {% if testimonial.photo %}
+                                        <img src="{{ testimonial.photo.url }}" class="rounded-circle me-3 image-loading" width="60" height="60" alt="{{ testimonial.patient_name }}" onload="this.classList.remove('image-loading')">
+                                    {% else %}
+                                        <img src="{% static 'images/patient-placeholder.jpg' %}" class="rounded-circle me-3 image-loading" alt="{{ testimonial.patient_name }}" width="60" height="60" onload="this.classList.remove('image-loading')">
+                                    {% endif %}
+                                    <div>
+                                        <h5 class="mb-0">{{ testimonial.patient_name }}</h5>
+                                        <div class="text-warning small">
+                                            {% for i in "12345" %}
+                                                {% if forloop.counter <= testimonial.rating %}
+                                                    <i class="fas fa-star"></i>
+                                                {% else %}
+                                                    <i class="far fa-star"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <blockquote class="mb-0">
+                                    <p class="font-italic">"{{ testimonial.content|truncatewords:30 }}"</p>
+                                </blockquote>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <!-- Default testimonials if no data -->
+                    <div class="col-md-4">
+                        <div class="card testimonial-card h-100 border-0 shadow-sm rounded-3 p-4 animate-on-scroll animate-slide-up">
+                            <div class="d-flex align-items-center mb-4">
+                                <img src="{% static 'images/patient-placeholder.jpg' %}" class="rounded-circle me-3 image-loading" width="60" height="60" alt="John Smith" onload="this.classList.remove('image-loading')">
+                                <div>
+                                    <h5 class="mb-0">John Smith</h5>
+                                    <div class="text-warning small">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <blockquote class="mb-0">
+                                <p class="font-italic">"The care I received was exceptional. The doctors were knowledgeable and took time to explain everything to me."</p>
+                            </blockquote>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card testimonial-card h-100 border-0 shadow-sm rounded-3 p-4 animate-on-scroll animate-slide-up" style="transition-delay: 0.15s">
+                            <div class="d-flex align-items-center mb-4">
+                                <img src="{% static 'images/patient-placeholder.jpg' %}" class="rounded-circle me-3 image-loading" width="60" height="60" alt="Maria Garcia" onload="this.classList.remove('image-loading')">
+                                <div>
+                                    <h5 class="mb-0">Maria Garcia</h5>
+                                    <div class="text-warning small">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <blockquote class="mb-0">
+                                <p class="font-italic">"The staff was very caring and professional. I felt comfortable throughout my entire treatment."</p>
+                            </blockquote>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card testimonial-card h-100 border-0 shadow-sm rounded-3 p-4 animate-on-scroll animate-slide-up" style="transition-delay: 0.3s">
+                            <div class="d-flex align-items-center mb-4">
+                                <img src="{% static 'images/patient-placeholder.jpg' %}" class="rounded-circle me-3 image-loading" width="60" height="60" alt="David Johnson" onload="this.classList.remove('image-loading')">
+                                <div>
+                                    <h5 class="mb-0">David Johnson</h5>
+                                    <div class="text-warning small">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="far fa-star"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <blockquote class="mb-0">
+                                <p class="font-italic">"Excellent facilities and very clean environment. The doctors were thorough in their diagnosis."</p>
+                            </blockquote>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section py-5 text-white animate-on-scroll animate-fade-in" style="background: linear-gradient(135deg, #2989d8 0%,#1e5799 100%);">
+        <div class="container py-4">
+            <div class="row align-items-center">
+                <div class="col-lg-8 mb-4 mb-lg-0">
+                    <h3 class="fw-bold mb-3">Need Immediate Medical Assistance?</h3>
+                    <p class="mb-0">Our emergency department is open 24/7 with expert care when you need it most.</p>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                    <a href="tel:+1234567890" class="btn btn-light btn-lg px-4 py-3 rounded-pill shadow btn-hover-effect">
+                        <i class="bi bi-telephone-outbound-fill me-2"></i> Call Emergency
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Appointment Section -->
+    <section id="appointment" class="py-5 my-5" style="background-color: #ffd6e7;">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="appointment-card card shadow-lg border-0 rounded-3 overflow-hidden animate-on-scroll animate-zoom-in">
+                        <div class="row g-0">
+                            <!-- Image Column - Improved blending -->
+                            <div class="col-lg-6 d-none d-lg-block position-relative">
+                                <div class="appointment-img h-100" style="
+                                    background-image: url('{% static 'images/appointment1.jpg' %}');
+                                    background-size: cover;
+                                    background-position: center;
+                                    position: relative;
+                                ">
+                                    <div class="image-overlay" style="
+                                        position: absolute;
+                                        top: 0;
+                                        left: 0;
+                                        width: 100%;
+                                        height: 100%;
+                                        background: linear-gradient(135deg, rgba(255, 214, 231, 0.3) 0%, rgba(13, 110, 253, 0.1) 100%);
+                                    "></div>
+                                </div>
+                            </div>
+                            <!-- Content Column -->
+                            <div class="col-lg-6">
+                                <div class="card-body p-5 d-flex flex-column justify-content-center" style="min-height: 100%;">
+                                    <div class="text-center mb-5">
+                                        <h2 class="fw-bold">Book an Appointment</h2>
+                                        <p class="text-muted">Schedule your visit with our specialists</p>
+                                        <div class="divider mx-auto" style="
+                                            height: 3px;
+                                            width: 80px;
+                                            background: linear-gradient(90deg, #0d6efd 0%, rgba(255, 214, 231, 0.7) 100%);
+                                        "></div>
+                                    </div>
+
+                                    {% if user.is_authenticated %}
+                                        <div class="text-center py-4">
+                                            <a href="{% url 'portal_redirect' %}" class="btn btn-primary btn-lg px-5 py-3 btn-hover-effect">
+                                                <i class="bi bi-calendar-plus me-2"></i> Book Now in Patient Portal
+                                            </a>
+                                        </div>
+                                    {% else %}
+                                        <div class="alert alert-info animate-on-scroll animate-fade-in" style="
+                                            background-color: rgba(13, 110, 253, 0.1);
+                                            border-color: rgba(13, 110, 253, 0.3);
+                                        ">
+                                            <p class="mb-0">Please login or register as a patient to book an appointment.</p>
+                                        </div>
+                                        <div class="d-flex flex-column flex-sm-row justify-content-center gap-3 mt-4 animate-on-scroll animate-slide-up">
+                                            <a href="{% url 'patient-login' %}" class="btn btn-primary px-4 py-3 btn-hover-effect">
+                                                <i class="bi bi-box-arrow-in-right me-2"></i> Login
+                                            </a>
+                                            <a href="{% url 'register_patient' %}" class="btn btn-outline-primary px-4 py-3 btn-hover-effect">
+                                                <i class="bi bi-person-plus me-2"></i> Register
+                                            </a>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Portal Access Section -->
+    <section id="portal" class="bg-primary text-white py-5 mb-5">
+        <div class="container">
+            <div class="text-center mb-5 animate-on-scroll animate-fade-in">
+                <h2>Healthcare Portal Access</h2>
+                <p class="lead">Login to your personalized healthcare portal</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card portal-card h-100 border-0 shadow-sm rounded-3 animate-on-scroll animate-slide-up">
+                        <div class="card-body text-center">
+                            <i class="bi bi-person-heart fs-1 text-primary mb-3"></i>
+                            <h4 class="card-title">Patient Portal</h4>
+                            <p class="card-text">Manage your appointments, medical records, and communicate with your doctors.</p>
+                            <a href="{% if user.is_authenticated %}{% url 'portal_redirect' %}{% else %}{% url 'patient-login' %}{% endif %}" class="btn btn-outline-primary btn-hover-effect">
+                                Access Portal
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card portal-card h-100 border-0 shadow-sm rounded-3 animate-on-scroll animate-slide-up" style="transition-delay: 0.1s">
+                        <div class="card-body text-center">
+                            <i class="bi bi-heart-pulse fs-1 text-primary mb-3"></i>
+                            <h4 class="card-title">Doctor Portal</h4>
+                            <p class="card-text">Healthcare providers can access patient records and manage appointments.</p>
+                            <a href="{% if user.is_authenticated %}{% url 'portal_redirect' %}{% else %}{% url 'doctor_login' %}{% endif %}" class="btn btn-outline-primary btn-hover-effect">
+                                Access Portal
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card portal-card h-100 border-0 shadow-sm rounded-3 animate-on-scroll animate-slide-up" style="transition-delay: 0.2s">
+                        <div class="card-body text-center">
+                            <i class="bi bi-shield-lock fs-1 text-primary mb-3"></i>
+                            <h4 class="card-title">Admin Portal</h4>
+                            <p class="card-text">Administrators can manage system users, facilities, and appointments.</p>
+                            <a href="{% if user.is_authenticated %}{% url 'portal_redirect' %}{% else %}{% url 'admin-login' %}{% endif %}" class="btn btn-outline-primary btn-hover-effect">
+                                Access Portal
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% if user.is_authenticated %}
+                <div class="text-center mt-4 animate-on-scroll animate-fade-in">
+                    <a href="{% url 'logout' %}" class="btn btn-danger btn-hover-effect">
+                        <i class="bi bi-box-arrow-right me-1"></i> Logout
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="bg-light py-5 my-5">
+        <div class="container">
+            <div class="text-center mb-5 animate-on-scroll animate-fade-in">
+                <span class="badge bg-primary bg-opacity-10 text-primary mb-3">Contact</span>
+                <h2 class="fw-bold">Get In Touch</h2>
+                <p class="lead text-muted">We're here to help and answer any questions</p>
+                <div class="divider mx-auto"></div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-lg-5 animate-on-scroll animate-slide-left">
+                    <div class="contact-info pe-lg-5">
+                        <h4 class="fw-bold mb-4">Contact Information</h4>
+                        {% if hospital %}
+                            <div class="d-flex mb-4">
+                                <div class="bg-primary bg-opacity-10 p-3 rounded me-3">
+                                    <i class="bi bi-geo-alt text-primary fs-4"></i>
+                                </div>
+                                <div>
+                                    <h5 class="fw-bold mb-1">Address</h5>
+                                    <p class="text-muted mb-0">{{ hospital.address }}</p>
+                                </div>
+                            </div>
+                            <div class="d-flex mb-4">
+                                <div class="bg-primary bg-opacity-10 p-3 rounded me-3">
+                                    <i class="bi bi-telephone text-primary fs-4"></i>
+                                </div>
+                                <div>
+                                    <h5 class="fw-bold mb-1">Phone</h5>
+                                    <p class="text-muted mb-0">{{ hospital.phone }}</p>
+                                </div>
+                            </div>
+                            <div class="d-flex mb-4">
+                                <div class="bg-primary bg-opacity-10 p-3 rounded me-3">
+                                    <i class="bi bi-envelope text-primary fs-4"></i>
+                                </div>
+                                <div>
+                                    <h5 class="fw-bold mb-1">Email</h5>
+                                    <p class="text-muted mb-0">{{ hospital.email }}</p>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="d-flex mb-4">
+                                <div class="bg-primary bg-opacity-10 p-3 rounded me-3">
+                                    <i class="bi bi-geo-alt text-primary fs-4"></i>
+                                </div>
+                                <div>
+                                    <h5 class="fw-bold mb-1">Address</h5>
+                                    <p class="text-muted mb-0">123 Medical Center Drive, Healthville, HV 12345</p>
+                                </div>
+                            </div>
+                            <div class="d-flex mb-4">
+                                <div class="bg-primary bg-opacity-10 p-3 rounded me-3">
+                                    <i class="bi bi-telephone text-primary fs-4"></i>
+                                </div>
+                                <div>
+                                    <h5 class="fw-bold mb-1">Phone</h5>
+                                    <p class="text-muted mb-0">(123) 456-7890</p>
+                                </div>
+                            </div>
+                            <div class="d-flex mb-4">
+                                <div class="bg-primary bg-opacity-10 p-3 rounded me-3">
+                                    <i class="bi bi-envelope text-primary fs-4"></i>
+                                </div>
+                                <div>
+                                    <h5 class="fw-bold mb-1">Email</h5>
+                                    <p class="text-muted mb-0">info@medicalcenter.com</p>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <div class="mt-5 animate-on-scroll animate-fade-in" style="transition-delay: 0.2s">
+                            <h5 class="fw-bold mb-3">Follow Us</h5>
+                            <div class="social-links">
+                                <a href="#" class="bg-primary bg-opacity-10 text-primary rounded-circle me-2 btn-hover-effect"><i class="fab fa-facebook-f"></i></a>
+                                <a href="#" class="bg-primary bg-opacity-10 text-primary rounded-circle me-2 btn-hover-effect"><i class="fab fa-twitter"></i></a>
+                                <a href="#" class="bg-primary bg-opacity-10 text-primary rounded-circle me-2 btn-hover-effect"><i class="fab fa-instagram"></i></a>
+                                <a href="#" class="bg-primary bg-opacity-10 text-primary rounded-circle btn-hover-effect"><i class="fab fa-linkedin-in"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-7 animate-on-scroll animate-slide-right">
+                    <div class="card border-0 shadow-sm rounded-3">
+                        <div class="card-body p-5">
+                            <h4 class="fw-bold mb-4">Send Us a Message</h4>
+                            <form>
+                                <div class="row g-3">
+                                    <div class="col-md-6 animate-on-scroll animate-fade-in">
+                                        <label for="name" class="form-label">Your Name</label>
+                                        <input type="text" class="form-control" id="name" required>
+                                    </div>
+                                    <div class="col-md-6 animate-on-scroll animate-fade-in" style="transition-delay: 0.1s">
+                                        <label for="email" class="form-label">Email Address</label>
+                                        <input type="email" class="form-control" id="email" required>
+                                    </div>
+                                    <div class="col-12 animate-on-scroll animate-fade-in" style="transition-delay: 0.2s">
+                                        <label for="subject" class="form-label">Subject</label>
+                                        <input type="text" class="form-control" id="subject" required>
+                                    </div>
+                                    <div class="col-12 animate-on-scroll animate-fade-in" style="transition-delay: 0.3s">
+                                        <label for="message" class="form-label">Message</label>
+                                        <textarea class="form-control" id="message" rows="5" required></textarea>
+                                    </div>
+                                    <div class="col-12 animate-on-scroll animate-fade-in" style="transition-delay: 0.4s">
+                                        <button type="submit" class="btn btn-primary px-4 py-3 btn-hover-effect">Send Message</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Map Section -->
+    <div class="map-section animate-on-scroll animate-fade-in">
+        {% if hospital and hospital.map_embed_code %}
+            {{ hospital.map_embed_code|safe }}
+        {% else %}
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.21520917933!2d-73.98784492452506!3d40.74844047138978!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c259a9b3117469%3A0xd134e199a405a163!2sEmpire%20State%20Building!5e0!3m2!1sen!2sus!4v1623251157714!5m2!1sen!2sus" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Animation classes */
+    .animate-on-scroll {
+        opacity: 0;
+        transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+
+    .animate-on-scroll.animated {
+        opacity: 1;
+    }
+
+    .animate-slide-down {
+        transform: translateY(-30px);
+    }
+
+    .animate-slide-down.animated {
+        transform: translateY(0);
+    }
+
+    .animate-slide-up {
+        transform: translateY(30px);
+    }
+
+    .animate-slide-up.animated {
+        transform: translateY(0);
+    }
+
+    .animate-slide-left {
+        transform: translateX(-30px);
+    }
+
+    .animate-slide-left.animated {
+        transform: translateX(0);
+    }
+
+    .animate-slide-right {
+        transform: translateX(30px);
+    }
+
+    .animate-slide-right.animated {
+        transform: translateX(0);
+    }
+
+    .animate-zoom-in {
+        transform: scale(0.95);
+    }
+
+    .animate-zoom-in.animated {
+        transform: scale(1);
+    }
+
+    .animate-fade-in.animated {
+        opacity: 1;
+    }
+
+    /* Image loading state */
+    .image-loading {
+        background-color: #f5f5f5;
+        opacity: 0.8;
+    }
+
+    /* Hover effects */
+    .btn-hover-effect {
+        transition: all 0.3s ease;
+    }
+
+    .btn-hover-effect:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-hover-effect {
+        transition: all 0.3s ease;
+    }
+
+    .card-hover-effect:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Divider */
+    .divider {
+        height: 3px;
+        width: 60px;
+        background-color: var(--bs-primary);
+        margin: 15px auto;
+    }
+
+    /* Stats bar */
+    .stats-bar {
+        position: relative;
+        z-index: 10;
+        margin-top: -50px;
+    }
+
+    /* Department cards */
+    .department-img {
+        background-size: cover;
+        background-position: center;
+        transition: all 0.3s ease;
+    }
+
+    /* Portal cards */
+    .portal-card {
+        background-color: rgba(255, 255, 255, 0.8); /* Pale white (80% opacity) */
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.2); /* Optional subtle border */
+    }
+
+    .portal-card:hover {
+        background-color: rgba(255, 255, 255, 1); /* Pure white on hover */
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* Optional subtle shadow on hover */
+        transform: translateY(-3px); /* Optional slight lift effect */
+    }
+
+      .floating-sidebar {
+        position: fixed;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 1000;
+      }
+
+          .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-end;
+          }
+
+          .sidebar-menu li {
+            width: 60px;
+            height: 60px;
+            border-radius: 30px 0 0 30px;
+            transition: all 0.3s ease;
+            display: flex;
+            overflow: hidden;
+          }
+
+          .sidebar-menu li a {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: white;
+            height: 100%;
+            width: 100%;
+            padding-left: 15px;
+          }
+
+          .sidebar-menu li:hover {
+            width: 200px;
+          }
+
+          .sidebar-menu li i {
+            font-size: 1.5rem;
+            min-width: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+
+          .option-label {
+            margin-left: 15px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            font-weight: 500;
+            padding-right: 20px;
+          }
+
+          .sidebar-menu li:hover .option-label {
+            opacity: 1;
+          }
+
+          /* Individual option colors */
+          .appointment-option {
+            background: #4e73df;
+          }
+
+          .doctors-option {
+            background: #1cc88a;
+          }
+
+          .departments-option {
+            background: #e74a3b;
+          }
+
+          .contact-option {
+            background: #36b9cc;
+          }
+
+          .emergency-option {
+            background: #f6c23e;
+            animation: pulse 2s infinite;
+          }
+
+          @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(246, 194, 62, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(246, 194, 62, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(246, 194, 62, 0); }
+          }
+
+
+
+            /* Responsive adjustments */
+            @media (max-width: 768px) {
+                .stats-bar {
+                    margin-top: 0;
+                }
+
+                .hero-section {
+                    min-height: 80vh;
+                }
+            }
+
+
+            /* Appointment Card Styles */
+        .appointment-card {
+            transition: transform 0.3s ease;
+            overflow: hidden; /* Ensures rounded corners work properly */
+        }
+
+        .appointment-card:hover {
+            transform: scale(1.03);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* Enhanced shadow on hover */
+            z-index: 10; /* Brings card forward during hover */
+        }
+
+        /* Image Container - Fixes overflow issues */
+        .appointment-card .row {
+            overflow: visible; /* Allows hover effect to extend */
+        }
+
+        /* Image Styles */
+        .appointment-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease; /* Smooth image scaling */
+        }
+
+        .appointment-card:hover img {
+            transform: scale(1.02); /* Subtle image zoom on card hover */
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(13, 110, 253, 0.1) !important;
+            border-color: rgba(13, 110, 253, 0.2) !important;
+        }
+
+        .feature-card:hover .icon-wrapper {
+            background: linear-gradient(135deg, rgba(13, 110, 253, 0.2) 0%, rgba(13, 110, 253, 0.1) 100%) !important;
+            transform: scale(1.05);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 767.98px) {
+            .feature-card {
+                max-width: 400px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+
+
+       /* Improved card styling */
+        .appointment-card {
+            transition: all 0.3s ease;
+            border: 1px solid rgba(42, 88, 133, 0.1) !important;
+        }
+
+        .appointment-card:hover {
+            transform: scale(1.01);
+            box-shadow: 0 15px 35px rgba(42, 88, 133, 0.1) !important;
+        }
+
+        /* Image effects */
+        .appointment-img {
+            transition: all 0.5s ease;
+        }
+
+        .appointment-card:hover .appointment-img {
+            transform: scale(1.02);
+        }
+
+        /* Button hover effects */
+        .btn-hover-effect {
+            transition: all 0.3s ease;
+        }
+
+        .btn-hover-effect:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(42, 88, 133, 0.3);
+        }
+
+        /* Special hover for outline button */
+        .btn-outline-primary.btn-hover-effect:hover {
+            background-color: #2a5885 !important;
+            color: white !important;
+        }
+
+
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/4.0.1/noframework.waypoints.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Owl Carousel for Doctors
+        $(".doctor-carousel").owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: true,
+            navText: ['<i class="bi bi-chevron-left"></i>', '<i class="bi bi-chevron-right"></i>'],
+            dots: false,
+            responsive: {
+                0: { items: 1 },
+                600: { items: 2 },
+                1000: { items: 3 }
+            }
+        });
+
+        // Initialize animations
+        function initAnimations() {
+            const animateElements = document.querySelectorAll('.animate-on-scroll');
+
+                    animateElements.forEach(element => {
+                        new Waypoint({
+                            element: element,
+                            handler: function(direction) {
+                                if (direction === 'down') {
+                                    element.classList.add('animated');
+                                }
+                            },
+                            offset: '75%'
+                        });
+                    });
+                }
+
+                initAnimations();
+
+                // Animated counter for stats
+        function animateStats() {
+            const stats = document.querySelectorAll('.stats-bar .display-5');
+
+            stats.forEach(stat => {
+                const originalText = stat.textContent;
+
+                // Handle special cases
+                if (originalText.includes('K+')) {
+                    // For 10K+ (convert to 10000)
+                    const target = parseFloat(originalText.replace('K+', '')) * 1000;
+                    animateCounter(stat, target, 'K+');
+                } else if (originalText.includes('/')) {
+                    // For 24/7 (don't animate, just keep as is)
+                    stat.textContent = originalText;
+                } else {
+                    // For regular numbers (150+, 25+)
+                    const target = parseInt(originalText.replace('+', ''));
+                    animateCounter(stat, target, '+');
+                }
+            });
+        }
+
+        function animateCounter(element, target, suffix) {
+            const duration = 2000;
+            const step = target / (duration / 16); // 60fps
+            let current = 0;
+
+            // Special case for 10K+ - start from 0
+            if (suffix === 'K+') {
+                element.textContent = '0+';
+            }
+
+            const counter = setInterval(() => {
+                current += step;
+                if (current >= target) {
+                    clearInterval(counter);
+                    // Format the final number
+                    if (suffix === 'K+') {
+                        element.textContent = (target/1000) + suffix;
+                    } else {
+                        element.textContent = target + suffix;
+                    }
+                } else {
+                    // Format the current number
+                    if (suffix === 'K+') {
+                        const displayValue = Math.floor(current/1000);
+                        element.textContent = displayValue + suffix;
+                    } else {
+                        element.textContent = Math.floor(current) + suffix;
+                    }
+                }
+            }, 16);
+        }
+
+        // Only animate stats when they come into view
+        new Waypoint({
+            element: document.querySelector('.stats-bar'),
+            handler: function(direction) {
+                if (direction === 'down') {
+                    animateStats();
+                    this.destroy(); // Only run once
+                }
+            },
+            offset: '75%'
+        });
+
+        // Handle image loading
+        function handleImageLoading() {
+            const images = document.querySelectorAll('img');
+
+            images.forEach(img => {
+                if (img.complete) {
+                    img.classList.remove('image-loading');
+                } else {
+                    img.addEventListener('load', function() {
+                        this.classList.remove('image-loading');
+                    });
+                    img.addEventListener('error', function() {
+                        // Handle broken images
+                        this.style.display = 'none';
+                    });
+                }
+            });
+        }
+
+        handleImageLoading();
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+          const sidebar = document.querySelector('.floating-sidebar');
+          const toggleBtn = document.querySelector('.sidebar-toggle');
+
+          // Toggle sidebar
+          toggleBtn.addEventListener('click', function() {
+            sidebar.classList.toggle('collapsed');
+          });
+
+          // Auto-collapse on mobile
+          function handleResize() {
+            if (window.innerWidth < 768) {
+              sidebar.classList.add('collapsed');
+            } else {
+              sidebar.classList.remove('collapsed');
+            }
+          }
+
+          // Initial check
+          handleResize();
+
+          // Listen for resize events
+          window.addEventListener('resize', handleResize);
+        });
+
+
+
+
+    });
+</script>
+{% endblock %}

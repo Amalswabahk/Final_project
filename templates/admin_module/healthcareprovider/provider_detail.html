@@ -1,0 +1,219 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Added an outer div for the pink background with padding -->
+<div style="background-color: pink; padding-top: 50px; padding-bottom: 100px;">
+    <div class="container mt-4" style="padding-top: 50px;">
+        <div class="row">
+            <div class="col-md-4">
+                <!-- Profile Card -->
+                <div class="card shadow-sm">
+                    <div class="card-body text-center">
+                        <img src="{% if provider.image_url %}{{ provider.image_url }}{% else %}{% static 'images/doctor-placeholder1.jpg' %}{% endif %}"
+                             class="rounded-circle mb-3"
+                             width="300"
+                             height="300"
+                             style="object-fit: cover;">
+                        <h3 class="card-title">Dr. {{ provider.user.get_full_name }}</h3>
+                        <p class="text-muted mb-1">
+                            <i class="fas fa-briefcase-medical"></i> {{ provider.specialization }}
+                        </p>
+                        {% if provider.department %}
+                        <p class="text-muted">
+                            <i class="fas fa-clinic-medical"></i> {{ provider.department.name }}
+                        </p>
+                        {% endif %}
+
+                        <div class="d-flex justify-content-center mb-3">
+                            <div class="me-3">
+                                <span class="badge bg-primary rounded-pill">
+                                    <i class="fas fa-star me-1"></i> 4.8
+                                </span>
+                            </div>
+                            <div>
+                                <span class="badge bg-info text-dark rounded-pill">
+                                    <i class="fas fa-award me-1"></i> {{ provider.years_of_experience }} yrs exp
+                                </span>
+                            </div>
+                        </div>
+
+                        {% if provider.is_verified %}
+                        <div class="alert alert-success py-1 px-2 d-inline-block">
+                            <small>
+                                <i class="fas fa-check-circle me-1"></i> Verified Practitioner
+                            </small>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Enhanced Booking Section -->
+                <div class="card shadow-sm mt-4">
+                    <div class="card-body">
+                        <div class="text-center mb-4">
+                            <h4 class="fw-bold">Book an Appointment</h4>
+                            <p class="text-muted small">Schedule your visit with Dr. {{ provider.user.get_full_name }}</p>
+                            <div class="divider mx-auto" style="
+                                height: 3px;
+                                width: 60px;
+                                background: linear-gradient(90deg, #0d6efd 0%, rgba(255, 214, 231, 0.7) 100%);
+                                margin: 8px auto;
+                            "></div>
+                        </div>
+
+                        {% if user.is_authenticated %}
+                            <div class="text-center py-2">
+                                <a href="{% url 'portal_redirect' %}" class="btn btn-primary w-100 py-2 btn-hover-effect">
+                                    <i class="fas fa-calendar-plus me-2"></i> Book Now
+                                </a>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info mb-3 animate-on-scroll animate-fade-in" style="
+                                background-color: rgba(13, 110, 253, 0.1);
+                                border-color: rgba(13, 110, 253, 0.3);
+                                font-size: 0.9rem;
+                            ">
+                                <p class="mb-2">Please login or register to book an appointment.</p>
+                            </div>
+                            <div class="d-flex flex-column gap-2 mt-2 animate-on-scroll animate-slide-up">
+                                <a href="{% url 'patient-login' %}" class="btn btn-primary w-100 py-2 btn-hover-effect">
+                                    <i class="fas fa-sign-in-alt me-2"></i> Login
+                                </a>
+                                <a href="{% url 'register_patient' %}" class="btn btn-outline-primary w-100 py-2 btn-hover-effect">
+                                    <i class="fas fa-user-plus me-2"></i> Register
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Contact Info -->
+                <div class="card shadow-sm mt-3">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">
+                            <i class="fas fa-id-card me-2"></i> Contact Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <i class="fas fa-envelope me-2 text-primary"></i>
+                                {{ provider.user.email }}
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-phone me-2 text-primary"></i>
+                                {{ provider.user.phone_number|default:"Not provided" }}
+                            </li>
+                            <li>
+                                <i class="fas fa-id-badge me-2 text-primary"></i>
+                                License: {{ provider.license_number }}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <!-- Main Profile Content -->
+                <div class="card shadow-sm">
+                    <div class="card-header bg-light">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Professional Profile</h5>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h6 class="text-primary mb-3">About</h6>
+                        <p class="card-text">
+                            {{ provider.bio|default:"No biography provided" }}
+                        </p>
+
+                        <hr class="my-4">
+
+                        <h6 class="text-primary mb-3">Specializations</h6>
+                        <div class="d-flex flex-wrap gap-2 mb-4">
+                            <span class="badge bg-light text-dark rounded-pill px-3 py-2">
+                                <i class="fas fa-stethoscope me-1 text-primary"></i>
+                                {{ provider.specialization }}
+                            </span>
+                            <!-- Add more specializations if available -->
+                        </div>
+
+                        <hr class="my-4">
+
+                        <h6 class="text-primary mb-3">Education & Qualifications</h6>
+                        <div class="list-group list-group-flush mb-4">
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between">
+                                    <strong>Medical Degree</strong>
+                                    <span class="text-muted">2005-2010</span>
+                                </div>
+                                <div>Harvard Medical School</div>
+                            </div>
+                            <!-- Add more education items as needed -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex justify-content-between mt-3">
+                    <a href="{% url 'provider-list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 10px;
+        border: none;
+    }
+    .card-header {
+        border-radius: 10px 10px 0 0 !important;
+    }
+    .list-group-item {
+        border-left: none;
+        border-right: none;
+    }
+    .list-group-item:first-child {
+        border-top: none;
+    }
+    .btn-hover-effect {
+        transition: all 0.3s ease;
+    }
+    .btn-hover-effect:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .animate-on-scroll {
+        opacity: 0;
+        transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .animate-fade-in {
+        opacity: 1;
+    }
+    .animate-slide-up {
+        opacity: 1;
+        transform: translateY(0);
+    }
+</style>
+
+<script>
+    // Simple animation trigger on load
+    document.addEventListener('DOMContentLoaded', function() {
+        const animatedElements = document.querySelectorAll('.animate-on-scroll');
+        animatedElements.forEach(el => {
+            el.classList.add('animate-fade-in');
+            if (el.classList.contains('animate-slide-up')) {
+                el.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    el.style.transform = 'translateY(0)';
+                }, 50);
+            }
+        });
+    });
+</script>
+{% endblock %}

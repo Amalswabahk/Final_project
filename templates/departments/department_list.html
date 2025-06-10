@@ -1,0 +1,101 @@
+{% extends 'home/base.html' %}
+
+{% block content %}
+<div class="py-5" style="background-color: light-grey; min-height: 100vh;">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <h1 class="display-4 fw-bold text-dark" style="font-weight: 800!important; letter-spacing: -0.5px;">Departments</h1>
+            {% if request.user.is_superuser %}
+            <a href="{% url 'department-create' %}" class="btn btn-success btn-lg">
+                <i class="fas fa-plus-circle mr-2"></i>Create New
+            </a>
+            {% endif %}
+        </div>
+
+        {% if departments %}
+        <div class="row">
+            {% for department in departments %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <!-- Image Placeholder -->
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 180px;">
+                        {% if department.icon %}
+                            <i class="{{ department.icon }} fa-4x text-primary"></i>
+                        {% else %}
+                            <i class="fas fa-building fa-4x text-muted"></i>
+                        {% endif %}
+                    </div>
+
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">
+                            <a href="{% url 'department-detail' department.pk %}" class="text-decoration-none text-dark">
+                                {{ department.name }}
+                            </a>
+                        </h5>
+                        {% if department.description %}
+                        <p class="card-text text-muted">{{ department.description }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="card-footer bg-white border-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{% url 'department-detail' department.pk %}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-eye mr-1"></i> View
+                            </a>
+                            {% if request.user.is_superuser %}
+                            <a href="{% url 'department-delete' department.pk %}" class="btn btn-sm btn-outline-danger">
+                                <i class="fas fa-trash-alt mr-1"></i> Delete
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <div class="card shadow-sm">
+                <div class="card-body py-5">
+                    <i class="fas fa-building fa-5x text-muted mb-4"></i>
+                    <h3 class="text-muted fw-bold">No Departments Found</h3>
+                    <p class="text-muted">
+                        {% if request.user.is_superuser %}
+                        Get started by creating your first department
+                        {% else %}
+                        Please check back later for department listings
+                        {% endif %}
+                    </p>
+                    {% if request.user.is_superuser %}
+                    <a href="{% url 'department-create' %}" class="btn btn-primary mt-3">
+                        <i class="fas fa-plus-circle mr-2"></i>Create Department
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    }
+    .card-img-top {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    }
+    h1.display-4 {
+        text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+    body {
+        background-color: #f5f5f5 !important;
+    }
+</style>
+{% endblock %}

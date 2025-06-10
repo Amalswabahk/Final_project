@@ -1,0 +1,95 @@
+{% extends 'doctor_module/base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <!-- Profile Column -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <img src="{{ Healthcareprovider.image_url }}"
+                         class="rounded-circle mb-3" 
+                         style="width: 150px; height: 150px; object-fit: cover;"
+                         alt="Provider Image">
+                    
+                    <h3>Dr. {{ Healthcareprovider.user.get_full_name }}</h3>
+                    <p class="text-muted">{{ healthcareprovider.specialization }}</p>
+                    
+                    {% if healthcareprovider.department %}
+                    <p>
+                        <i class="fas fa-hospital"></i> {{ Healthcareprovider.department.name }}
+                    </p>
+                    {% endif %}
+                    
+                    <div class="d-grid gap-2">
+                        <a href="#" class="btn btn-primary">Book Appointment</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Contact Info -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Contact</h5>
+                    <p><i class="fas fa-envelope"></i> {{ Healthcareprovider.user.email }}</p>
+                    {% if Healthcareprovider.user.phone_number %}
+                    <p><i class="fas fa-phone"></i> {{ Healthcareprovider.user.phone_number }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Details Column -->
+        <div class="col-md-8">
+            <!-- About Section -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h4 class="card-title">About</h4>
+                    {% if Healthcareprovider.bio %}
+                        <p>{{ Healthcareprovider.bio }}</p>
+                    {% else %}
+                        <p class="text-muted">No bio available</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Professional Info -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h4 class="card-title">Professional Information</h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>License Number:</strong><br>
+                            {{ Healthcareprovider.license_number }}</p>
+                            
+                            <p><strong>Years of Experience:</strong><br>
+                            {{ Healthcareprovider.years_of_experience }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Verification Status:</strong><br>
+                            {% if Healthcareprovider.is_verified %}
+                                <span class="badge bg-success">Verified</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Pending Verification</span>
+                            {% endif %}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Department Info -->
+            {% if Healthcareprovider.department %}
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Department Information</h4>
+                    <p><strong>Department:</strong> {{ Healthcareprovider.department.name }}</p>
+                    {% if Healthcareprovider.department.description %}
+                    <p><strong>Description:</strong> {{ Healthcareprovider.department.description }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

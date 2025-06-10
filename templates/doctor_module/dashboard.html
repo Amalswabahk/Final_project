@@ -1,0 +1,439 @@
+{% extends "doctor_module/base.html" %}
+
+{% block doctor_title %}Dashboard{% endblock %}
+{% block doctor_header %}Doctor Dashboard{% endblock %}
+
+{% block doctor_content %}
+<div class="container-fluid">
+    <!-- Welcome Card with Stats -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card border-0" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="card-title mb-2 text-dark">Welcome back, Dr. {{ request.user.healthcareprovider.user.get_full_name }}!</h4>
+                            <p class="text-muted mb-0">Here's what's happening in your practice today.</p>
+                        </div>
+                        <div class="avatar avatar-lg bg-white rounded-circle shadow-sm">
+                            <i class="bi bi-person-badge fs-3 text-primary"></i>
+                        </div>
+                    </div>
+
+                    <hr class="my-4" style="border-top: 1px solid rgba(0,0,0,0.1);">
+
+                    <div class="row g-3">
+                        <!-- Today's Appointments -->
+                        <div class="col-md-3">
+                            <div class="card bg-white border-0 rounded-3 shadow-sm h-100">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar avatar-sm bg-success bg-opacity-10 rounded-circle me-3 p-2">
+                                            <i class="bi bi-calendar-check fs-5 text-success"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="mb-0 fw-bold">{{ todays_appointments.count }}</h4>
+                                            <small class="text-muted">Today's Appointments</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Upcoming Appointments -->
+                        <div class="col-md-3">
+                            <div class="card bg-white border-0 rounded-3 shadow-sm h-100">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar avatar-sm bg-info bg-opacity-10 rounded-circle me-3 p-2">
+                                            <i class="bi bi-clock-history fs-5 text-info"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="mb-0 fw-bold">{{ upcoming_appointments.count }}</h4>
+                                            <small class="text-muted">Upcoming</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Prescriptions -->
+                        <div class="col-md-3">
+                            <div class="card bg-white border-0 rounded-3 shadow-sm h-100">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar avatar-sm bg-warning bg-opacity-10 rounded-circle me-3 p-2">
+                                            <i class="bi bi-file-medical fs-5 text-warning"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="mb-0 fw-bold">{{ prescription_count }}</h4>
+                                            <small class="text-muted">Prescriptions</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Active Patients -->
+                        <div class="col-md-3">
+                            <div class="card bg-white border-0 rounded-3 shadow-sm h-100">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar avatar-sm bg-danger bg-opacity-10 rounded-circle me-3 p-2">
+                                            <i class="bi bi-people fs-5 text-danger"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="mb-0 fw-bold">{{ patient_count }}</h4>
+                                            <small class="text-muted">Active Patients</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="row">
+        <!-- Today's Appointments -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-header py-3" style="background: linear-gradient(to right, #4b6cb7, #182848);">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0 text-white"><i class="bi bi-calendar-day me-2"></i>Today's Appointments</h5>
+                        <span class="badge bg-white text-primary">{{ todays_appointments.count }}</span>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% if todays_appointments %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Patient</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for appointment in todays_appointments %}
+                                        <tr class="hover-shadow">
+                                            <td class="align-middle">
+                                                <span class="fw-bold">{{ appointment.date_time|time:"H:i" }}</span>
+                                            </td>
+                                            <td class="align-middle">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar avatar-sm bg-light rounded-circle me-2 p-2">
+                                                        <i class="bi bi-person fs-6 text-primary"></i>
+                                                    </div>
+                                                    <div>
+                                                        <a href="{% url 'patient_detail' appointment.patient.id %}" class="text-decoration-none text-dark fw-medium">
+                                                            {{ appointment.patient.user.get_full_name }}
+                                                        </a>
+                                                        <small class="d-block text-muted">{{ appointment.reason|truncatechars:25 }}</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="align-middle">
+                                                <span class="badge rounded-pill {% if appointment.status == 'completed' %}bg-success{% elif appointment.status == 'cancelled' %}bg-danger{% else %}bg-warning{% endif %}">
+                                                    {{ appointment.status|title }}
+                                                </span>
+                                            </td>
+                                            <td class="align-middle">
+                                                <a href="{% url 'appointment_detail' appointment.id %}" class="btn btn-sm btn-outline-primary rounded-pill">
+                                                    <i class="bi bi-eye me-1"></i> View
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <img src="https://img.icons8.com/ios/100/000000/calendar--v1.png" width="80" height="80" class="opacity-25 mb-3"/>
+                            <p class="text-muted mt-3">No appointments scheduled for today</p>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="card-footer bg-light border-0">
+                    <a href="{% url 'doctor_appointments' %}" class="btn btn-sm btn-primary float-end rounded-pill">
+                        <i class="bi bi-arrow-right me-1"></i> View All
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Appointments & Quick Actions -->
+        <div class="col-lg-6 mb-4">
+            <div class="row h-100">
+                <!-- Upcoming Appointments -->
+                <div class="col-md-12 mb-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-header py-3" style="background: linear-gradient(to right, #00c6ff, #0072ff);">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0 text-white"><i class="bi bi-calendar-week me-2"></i>Upcoming Appointments</h5>
+                                <span class="badge bg-white text-info">{{ upcoming_appointments.count }}</span>
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            {% if upcoming_appointments %}
+                                <div class="list-group list-group-flush">
+                                    {% for appointment in upcoming_appointments %}
+                                        <div class="list-group-item border-0 py-3 hover-bg">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar avatar-sm bg-info bg-opacity-10 rounded-circle me-3 p-2">
+                                                        <i class="bi bi-calendar3 text-info"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="mb-1">
+                                                            <a href="{% url 'patient_detail' appointment.patient.id %}" class="text-decoration-none text-dark">
+                                                                {{ appointment.patient.user.get_full_name }}
+                                                            </a>
+                                                        </h6>
+                                                        <small class="text-muted d-block">
+                                                            <i class="bi bi-clock me-1"></i>{{ appointment.date_time|date:"M j, Y H:i" }}
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                                <span class="badge bg-light text-dark rounded-pill">{{ appointment.reason|truncatechars:15 }}</span>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="text-center py-5">
+                                    <img src="https://img.icons8.com/ios/100/000000/planner.png" width="80" height="80" class="opacity-25 mb-3"/>
+                                    <p class="text-muted mt-3">No upcoming appointments</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="col-md-12">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header py-3" style="background: linear-gradient(to right, #0f9b0f, #56ab2f);">
+                            <h5 class="card-title mb-0 text-white"><i class="bi bi-lightning-charge me-2"></i>Quick Actions</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <a href="{% url 'patient_search' %}" class="card action-card h-100 text-decoration-none">
+                                        <div class="card-body text-center p-3">
+                                            <div class="avatar avatar-lg bg-success bg-opacity-10 rounded-circle mx-auto mb-3 p-3">
+                                                <i class="bi bi-search fs-4 text-success"></i>
+                                            </div>
+                                            <h6 class="mb-1 fw-bold">Find Patient</h6>
+                                            <small class="text-muted">Search patient records</small>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="col-md-6">
+                                    <a href="{% url 'create_prescription' %}" class="card action-card h-100 text-decoration-none">
+                                        <div class="card-body text-center p-3">
+                                            <div class="avatar avatar-lg bg-success bg-opacity-10 rounded-circle mx-auto mb-3 p-3">
+                                                <i class="bi bi-prescription2 fs-4 text-success"></i>
+                                            </div>
+                                            <h6 class="mb-1 fw-bold">New Prescription</h6>
+                                            <small class="text-muted">Create medication order</small>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="col-md-6">
+                                    <a href="{% url 'create_treatment_plan' %}" class="card action-card h-100 text-decoration-none">
+                                        <div class="card-body text-center p-3">
+                                            <div class="avatar avatar-lg bg-success bg-opacity-10 rounded-circle mx-auto mb-3 p-3">
+                                                <i class="bi bi-clipboard2-pulse fs-4 text-success"></i>
+                                            </div>
+                                            <h6 class="mb-1 fw-bold">Treatment Plan</h6>
+                                            <small class="text-muted">Create care plan</small>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="col-md-6">
+                                    <a href="{% url 'doctor_schedule' %}" class="card action-card h-100 text-decoration-none">
+                                        <div class="card-body text-center p-3">
+                                            <div class="avatar avatar-lg bg-success bg-opacity-10 rounded-circle mx-auto mb-3 p-3">
+                                                <i class="bi bi-calendar-plus fs-4 text-success"></i>
+                                            </div>
+                                            <h6 class="mb-1 fw-bold">Manage Schedule</h6>
+                                            <small class="text-muted">Update availability</small>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header py-3" style="background: linear-gradient(to right, #636363, #a2ab58);">
+                    <h5 class="card-title mb-0 text-white"><i class="bi bi-activity me-2"></i>Recent Activity</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_activities %}
+                        <div class="timeline">
+                            {% for activity in recent_activities %}
+                                <div class="timeline-item">
+                                    <div class="timeline-icon">
+                                        {% if activity.activity_type == 'prescription' %}
+                                            <i class="bi bi-prescription2 text-info"></i>
+                                        {% elif activity.activity_type == 'appointment' %}
+                                            <i class="bi bi-calendar-check text-primary"></i>
+                                        {% elif activity.activity_type == 'diagnosis' %}
+                                            <i class="bi bi-clipboard2-pulse text-warning"></i>
+                                        {% else %}
+                                            <i class="bi bi-file-text text-secondary"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div class="timeline-content">
+                                        <div class="d-flex justify-content-between">
+                                            <h6 class="mb-1">
+                                                <a href="{% url 'patient_detail' activity.patient.id %}" class="text-decoration-none">
+                                                    {{ activity.patient.user.get_full_name }}
+                                                </a>
+                                            </h6>
+                                            <small class="text-muted">{{ activity.timestamp|timesince }} ago</small>
+                                        </div>
+                                        <p class="mb-0 text-muted">{{ activity.details }}</p>
+                                        <span class="badge bg-light text-dark mt-1">
+                                            {{ activity.get_activity_type_display }}
+                                        </span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <img src="https://img.icons8.com/ios/100/000000/activity-history.png" width="80" height="80" class="opacity-25 mb-3"/>
+                            <p class="text-muted mt-3">No recent activity found</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Base Styles */
+    .card {
+        transition: all 0.3s ease;
+        border-radius: 12px;
+        overflow: hidden;
+        border: none;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+
+    .avatar {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    /* Custom Badges */
+    .badge {
+        font-weight: 500;
+        padding: 5px 10px;
+    }
+
+    /* Hover Effects */
+    .hover-shadow:hover {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    }
+
+    .hover-bg:hover {
+        background-color: #f8f9fa;
+    }
+
+    /* Action Cards */
+    .action-card {
+        transition: all 0.3s ease;
+        border-radius: 10px;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .action-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        border-color: rgba(25, 135, 84, 0.2);
+    }
+
+    /* Timeline Style */
+    .timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+
+    .timeline-item {
+        position: relative;
+        padding-bottom: 20px;
+    }
+
+    .timeline-icon {
+        position: absolute;
+        left: -30px;
+        top: 0;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: white;
+        box-shadow: 0 0 0 4px #f8f9fa;
+    }
+
+    .timeline-content {
+        padding: 10px 15px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+
+    /* Gradient Text */
+    .gradient-text {
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+        background-image: linear-gradient(to right, #4b6cb7, #182848);
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+</style>
+{% endblock %}

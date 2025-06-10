@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthcare Portal - {% block title %}{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --navbar-height: 56px;
+            --sidebar-width: 250px;
+            --sidebar-collapsed-width: 80px;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            transition: all 0.3s;
+            padding-top: var(--navbar-height);
+        }
+
+         .navbar {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 0;
+            z-index: 1030;
+            height: 56px;
+        }
+        .navbar-brand {
+            color: white;
+            font-weight: 600;
+        }
+        .navbar .nav-link {
+            color: black;
+        }
+        .navbar .nav-link:hover {
+            color: black;
+         }
+
+
+
+        /* Sidebar styles */
+        .sidebar {
+            background-color: #0d6efd;
+            color: white;
+            height: calc(100vh - var(--navbar-height));
+            position: fixed;
+            padding-top: 20px;
+            transition: all 0.3s;
+            z-index: 1000;
+            top: var(--navbar-height);
+            width: var(--sidebar-width);
+        }
+
+        .sidebar-collapsed {
+            width: var(--sidebar-collapsed-width) !important;
+        }
+
+        /* Main content area */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+            transition: all 0.3s;
+            min-height: calc(100vh - var(--navbar-height));
+        }
+
+        .main-content-collapsed {
+            margin-left: var(--sidebar-collapsed-width);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: var(--sidebar-width);
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .main-content-collapsed {
+                margin-left: 0;
+            }
+        }
+
+        /* Rest of your existing styles... */
+        .sidebar-collapsed .nav-link-text,
+        .sidebar-collapsed .profile-details {
+            display: none;
+        }
+
+        .sidebar-collapsed .nav-item {
+            text-align: center;
+        }
+
+        .sidebar a {
+            color: white;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-radius: 5px;
+            margin: 2px 5px;
+        }
+
+        .sidebar a:hover {
+            background-color: #0b5ed7;
+        }
+
+        .sidebar a.active {
+            background-color: #0b5ed7;
+            font-weight: bold;
+        }
+
+        .sidebar i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+            min-width: 25px;
+        }
+
+        .sidebar-collapsed i {
+            margin-right: 0;
+            font-size: 1.4rem;
+        }
+
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .profile-img {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 5px solid white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+        }
+
+        .sidebar-collapsed .profile-img {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 10px;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Top Navbar -->
+    <nav class="navbar navbar-expand navbar-dark">
+        <div class="container-fluid">
+            <button class="toggle-btn d-md-none me-2" id="mobileToggleSidebar">
+                <i class="bi bi-list"></i>
+            </button>
+            <a class="navbar-brand" href="{% url 'patient-dashboard' %}">
+                <i class="bi bi-heart-pulse me-2"></i>Healthcare Portal
+            </a>
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-person-circle me-1"></i>
+                        <span class="d-none d-md-inline">{{ request.user.get_full_name }}</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profile</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Settings</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="bi bi-box-arrow-left me-2"></i>Logout</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="d-flex justify-content-between align-items-center d-none d-md-block">
+            <button class="toggle-btn" id="toggleSidebar">
+                <i class="bi bi-list"></i>
+            </button>
+        </div>
+        <div class="text-center mb-4 profile-details">
+            <img src="{% static 'images/patient-placeholder.jpg' %}" class="profile-img mb-2">
+            <h5 class="nav-link-text">{{ request.user.get_full_name }}</h5>
+            <p class="text-muted nav-link-text">Patient</p>
+        </div>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a href="{% url 'patient-dashboard' %}" class="{% if request.resolver_match.url_name == 'patient_dashboard' %}active{% endif %}">
+                    <i class="bi bi-speedometer2"></i>
+                    <span class="nav-link-text">Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                        <a href="{% url 'create_appointment' %}" class="{% if request.resolver_match.url_name == 'book_appointment' %}active{% endif %}">
+                            <i class="bi bi-calendar-plus"></i>
+                            <span class="nav-link-text">Book Appointment</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'appointment_list' %}" class="{% if request.resolver_match.url_name == 'appointment_list' %}active{% endif %}">
+                            <i class="bi bi-calendar-check"></i>
+                            <span class="nav-link-text">My Appointments</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'medical_records' %}" class="{% if request.resolver_match.url_name == 'medical_records' %}active{% endif %}">
+                            <i class="bi bi-file-earmark-medical"></i>
+                            <span class="nav-link-text">Medical Records</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'billing_payments' %}" class="{% if request.resolver_match.url_name == 'billing_payments' %}active{% endif %}">
+                            <i class="bi bi-credit-card"></i>
+                            <span class="nav-link-text">Billing & Payments</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'health_education' %}" class="{% if request.resolver_match.url_name == 'health_education' %}active{% endif %}">
+                            <i class="bi bi-book"></i>
+                            <span class="nav-link-text">Health Education</span>
+                        </a>
+                    </li>
+
+
+        </ul>
+    </div>
+
+    <!-- Main content -->
+    <main class="main-content" id="mainContent">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">{% block header %}{% endblock %}</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    {% block header_buttons %}{% endblock %}
+                </div>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Toggle sidebar (desktop)
+            $('#toggleSidebar').click(function() {
+                $('#sidebar').toggleClass('sidebar-collapsed');
+                $('#mainContent').toggleClass('main-content-collapsed');
+
+                // Store state in localStorage
+                const isCollapsed = $('#sidebar').hasClass('sidebar-collapsed');
+                localStorage.setItem('sidebarCollapsed', isCollapsed);
+            });
+
+            // Toggle sidebar (mobile)
+            $('#mobileToggleSidebar').click(function() {
+                $('#sidebar').toggleClass('show');
+            });
+
+            // Check localStorage for saved state
+            if (localStorage.getItem('sidebarCollapsed') === 'true') {
+                $('#sidebar').addClass('sidebar-collapsed');
+                $('#mainContent').addClass('main-content-collapsed');
+            }
+
+            // Close sidebar when clicking outside on mobile
+            $(document).click(function(e) {
+                if ($(window).width() < 768) {
+                    if (!$(e.target).closest('#sidebar, #mobileToggleSidebar').length) {
+                        $('#sidebar').removeClass('show');
+                    }
+                }
+            });
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

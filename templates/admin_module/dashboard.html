@@ -1,0 +1,385 @@
+{% extends "admin_module/base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+{% block header %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Dashboard Header -->
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Dashboard Overview</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group me-2">
+                <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
+                <i class="bi bi-calendar"></i> This week
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats Cards Row -->
+    <div class="row mb-4">
+        <!-- Total Users Card -->
+        <div class="col-md-6 col-lg-3 mb-4">
+            <div class="card stat-card bg-primary text-white shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title text-uppercase small">Total Users</h6>
+                            <h2 class="mb-0">{{ stats.total_users }}</h2>
+                            <small class="opacity-75">{{ stats.new_users_today }} new today</small>
+                        </div>
+                        <i class="bi bi-people fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Patients Card -->
+        <div class="col-md-6 col-lg-3 mb-4">
+            <div class="card stat-card bg-success text-white shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title text-uppercase small">Active Patients</h6>
+                            <h2 class="mb-0">{{ stats.active_patients }}</h2>
+                            <small class="opacity-75">{{ stats.patients_with_appointments }} with appointments</small>
+                        </div>
+                        <i class="bi bi-person-heart fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Providers Card -->
+        <div class="col-md-6 col-lg-3 mb-4">
+            <div class="card stat-card bg-info text-white shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title text-uppercase small">Providers</h6>
+                            <h2 class="mb-0">{{ stats.doctors }}</h2>
+                            <small class="opacity-75">{{ stats.available_providers }} available today</small>
+                        </div>
+                        <i class="bi bi-heart-pulse fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Appointments Card -->
+        <div class="col-md-6 col-lg-3 mb-4">
+            <div class="card stat-card bg-warning text-dark shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title text-uppercase small">Today's Appointments</h6>
+                            <h2 class="mb-0">{{ stats.today_appointments }}</h2>
+                            <small class="opacity-75">{{ stats.upcoming_appointments }} upcoming</small>
+                        </div>
+                        <i class="bi bi-calendar-check fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Users and Appointments Row -->
+    <div class="row">
+        <!-- Recent Users Card -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Recent Users</h5>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" id="userFilterDropdown" data-bs-toggle="dropdown">
+                            <i class="bi bi-filter"></i> Filter
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="?user_filter=all">All Users</a></li>
+                            <li><a class="dropdown-item" href="?user_filter=patients">Patients</a></li>
+                            <li><a class="dropdown-item" href="?user_filter=providers">Providers</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if recent_users %}
+                        <div class="table-responsive">
+                            <table class="table table-hover table-sm">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Type</th>
+                                        <th>Joined</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for user in recent_users %}
+                                        <tr>
+                                            <td>
+                                                <strong>{{ user.get_full_name|default:user.username }}</strong>
+                                                <br>
+                                                <small class="text-muted">{{ user.email }}</small>
+                                            </td>
+                                            <td>
+                                                {% if user.is_staff %}
+                                                    <span class="badge bg-info">Staff</span>
+                                                {% elif user.groups.all.0.name == 'Patients' %}
+                                                    <span class="badge bg-primary">Patient</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">User</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ user.date_joined|date:"M d" }}</td>
+                                            <td>
+                                                {% if user.is_active %}
+                                                    <span class="badge bg-success">Active</span>
+                                                {% else %}
+                                                    <span class="badge bg-danger">Inactive</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-people fs-1 text-muted"></i>
+                            <p class="text-muted mt-2">No recent users found</p>
+                        </div>
+                    {% endif %}
+                    <div class="d-grid mt-2">
+                        <a href="{% url 'user_management' %}" class="btn btn-outline-secondary btn-sm">
+                            View All Users
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Appointments Card -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Recent Appointments</h5>
+                    <div>
+                        <select class="form-select form-select-sm" id="status-filter" style="width: 150px;">
+                            <option value="">All Statuses</option>
+                            {% for value, label in appointment_status %}
+                                <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-sm" id="appointmentsTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Patient</th>
+                                    <th>Provider</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for appointment in recent_appointments %}
+                                <tr>
+                                    <td>{{ appointment.date_time|date:"M d, Y H:i" }}</td>
+                                    <td>{{ appointment.patient.user.get_full_name }}</td>
+                                    <td>{{ appointment.healthcare_provider.user.get_full_name }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if appointment.status == 'Completed' %}success{% elif appointment.status == 'Cancelled' %}danger{% else %}info{% endif %}">
+                                            {{ appointment.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'edit_appointment' appointment.id %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center">No appointments found</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="d-flex justify-content-between mt-2">
+                        <a href="{% url 'admin_appointment_management' %}" class="btn btn-outline-secondary btn-sm">
+                            View All Appointments
+                        </a>
+                        <a href="{% url 'create_appointment' %}" class="btn btn-primary btn-sm">
+                            <i class="bi bi-plus"></i> New Appointment
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Healthcare Providers Section -->
+    <div class="row mt-2">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Healthcare Providers</h5>
+                    <div>
+                        <a href="{% url 'register_healthcare_provider' %}" class="btn btn-success btn-sm">
+                            <i class="bi bi-plus"></i> Add Provider
+                        </a>
+                        <a href="{% url 'provider-list' %}" class="btn btn-outline-light btn-sm ms-1">
+                            <i class="bi bi-list"></i> View All
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if recent_providers %}
+                    <div class="table-responsive">
+                        <table class="table table-hover table-sm">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Specialization</th>
+                                    <th>Department</th>
+                                    <th>Appointments</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for provider in recent_providers %}
+                                <tr>
+                                    <td>
+                                        <strong>Dr. {{ provider.user.get_full_name|default:provider.user.username }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ provider.license_number|default:"License not set" }}</small>
+                                    </td>
+                                    <td>{{ provider.specialization|default:"-" }}</td>
+                                    <td>{{ provider.department.name|default:"-" }}</td>
+                                    <td>{{ provider.appointment_count }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if provider.user.is_active %}success{% else %}danger{% endif %}">
+                                            {% if provider.user.is_active %}Active{% else %}Inactive{% endif %}
+                                        </span>
+                                    </td>
+                                    <td>
+                                       <div class="btn-group btn-group-sm">
+                                            <a href="{% url 'provider-detail' provider.id %}" class="btn btn-outline-primary">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a href="{% url 'provider-update' provider.id %}" class="btn btn-outline-secondary">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-person-x fs-1 text-muted"></i>
+                        <p class="text-muted mt-2">No healthcare providers found</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Card improvements */
+    .stat-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border: none;
+        border-radius: 0.5rem;
+        height: 100%;
+    }
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important;
+    }
+    .stat-card .card-body {
+        padding: 1.25rem;
+    }
+
+    /* Table improvements */
+    .table {
+        font-size: 0.875rem;
+    }
+    .table th {
+        font-weight: 600;
+        white-space: nowrap;
+        background-color: #f8f9fa !important;
+    }
+    .table td {
+        vertical-align: middle;
+    }
+
+    /* Badge improvements */
+    .badge {
+        font-weight: 500;
+        padding: 0.35em 0.65em;
+        font-size: 0.75em;
+        letter-spacing: 0.5px;
+    }
+
+    /* Empty state styling */
+    .text-center.py-4 {
+        opacity: 0.7;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .card-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+        .card-header h5 {
+            margin-bottom: 0;
+        }
+        #status-filter {
+            width: 100% !important;
+            margin-top: 0.5rem;
+        }
+    }
+</style>
+
+<script>
+    // Client-side status filtering for appointments
+    document.getElementById('status-filter').addEventListener('change', function() {
+        const status = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#appointmentsTable tbody tr');
+
+        rows.forEach(row => {
+            if (!status || row.getAttribute('data-status') === status) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+
+    // Initialize with any existing filter from URL
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const statusFilter = urlParams.get('status');
+
+        if (statusFilter) {
+            const filterSelect = document.getElementById('status-filter');
+            filterSelect.value = statusFilter;
+            filterSelect.dispatchEvent(new Event('change'));
+        }
+    });
+</script>
+{% endblock %}

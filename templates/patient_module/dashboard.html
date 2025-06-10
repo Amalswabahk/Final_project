@@ -1,0 +1,423 @@
+{% extends "patient_module/base.html" %}
+{% load static %}
+
+{% block title %}Patient Dashboard{% endblock %}
+{% block header %}Patient Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-container container-fluid px-4 py-4">
+    <!-- Welcome Section -->
+    <div class="welcome-card mb-4">
+        <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center">
+                    {% if patient.profile_picture %}
+                    <div class="welcome-avatar me-4">
+                        <img src="{{ patient.profile_picture.url }}" class="profile-img" alt="Profile Picture">
+                    </div>
+                    {% endif %}
+                    <div class="welcome-content flex-grow-1">
+                        <h2 class="card-title mb-2">Welcome back, {{ patient.user.get_full_name }}!</h2>
+                        <p class="card-text text-muted mb-3">Last login: {{ patient.user.last_login|date:"F j, Y H:i" }}</p>
+
+                        <div class="quick-stats d-flex flex-wrap gap-4 mt-3">
+                            <div class="stat-item p-3 bg-light rounded-3 text-center flex-grow-1">
+                                <span class="stat-number text-primary">{{ upcoming_appointments|length }}</span>
+                                <span class="stat-label">Upcoming Appointments</span>
+                            </div>
+                            <div class="stat-item p-3 bg-light rounded-3 text-center flex-grow-1">
+                                <span class="stat-number text-success">{{ active_prescriptions|length }}</span>
+                                <span class="stat-label">Active Prescriptions</span>
+                            </div>
+                            <div class="stat-item p-3 bg-light rounded-3 text-center flex-grow-1">
+                                <span class="stat-number text-danger">{{ unpaid_bills|length }}</span>
+                                <span class="stat-label">Pending Bills</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard Content -->
+    <div class="row g-4">
+        <!-- Left Column -->
+        <div class="col-lg-6">
+            <!-- Upcoming Appointments Card -->
+            <div class="card h-100 border-0 shadow-sm rounded-3">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3 rounded-top-3">
+                    <h5 class="card-title mb-0 fw-semibold">
+                        <i class="bi bi-calendar-check me-2"></i>Recent Appointments
+                    </h5>
+                    <a href="{% url 'appointment_list' %}" class="btn btn-sm btn-light">
+                        <i class="bi bi-clock-history me-1"></i> View All
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    {% if recent_appointments %}
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-4">Date</th>
+                                        <th>Time</th>
+                                        <th>Provider</th>
+                                        <th>Status</th>
+                                        <th class="pe-4 text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for appointment in recent_appointments %}
+                                    <tr>
+                                        <td class="ps-4">{{ appointment.date_time|date:"M j, Y" }}</td>
+                                        <td>{{ appointment.date_time|time:"h:i A" }}</td>
+                                        <td>
+                                            {% if appointment.Healthcareprovider %}
+                                                Dr. {{ appointment.Healthcareprovider.user.get_full_name }}
+                                            {% else %}
+                                                <span class="text-muted">Not assigned</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="badge rounded-pill
+                                                {% if appointment.status == 'completed' %}bg-success
+                                                {% elif appointment.status == 'cancelled' %}bg-danger
+                                                {% else %}bg-secondary{% endif %}">
+                                                {{ appointment.get_status_display }}
+                                            </span>
+                                        </td>
+                                        <td class="pe-4 text-end">
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="{% url 'appointment_detail' appointment.id %}"
+                                                   class="btn btn-outline-primary btn-sm rounded"
+                                                   title="View Details">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                {% if appointment.status == 'completed' %}
+                                                <a href="{% url 'book_followup' appointment.id %}"
+                                                   class="btn btn-outline-info btn-sm rounded ms-1"
+                                                   title="Book Follow-up">
+                                                    <i class="bi bi-calendar-plus"></i>
+                                                </a>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-calendar-x fa-4x text-muted mb-3"></i>
+                            <h5 class="text-muted">No recent appointments</h5>
+                            <p class="text-muted">You don't have any past appointments in our records.</p>
+                            <a href="{% url 'create_appointment' %}" class="btn btn-primary mt-2">
+                                <i class="bi bi-plus-circle me-1"></i> Book Appointment
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-lg-6">
+            <!-- Medical History Card -->
+            <div class="card h-100 border-0 shadow-sm rounded-3">
+                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center py-3 rounded-top-3">
+                    <h5 class="card-title mb-0 fw-semibold">
+                        <i class="bi bi-file-earmark-medical me-2"></i>Medical History
+                    </h5>
+                    <a href="{% url 'medical_records' %}" class="btn btn-sm btn-light">
+                        <i class="bi bi-clock-history me-1"></i> View All
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if recent_records %}
+                        <div class="timeline">
+                            {% for record in recent_records %}
+                            <div class="timeline-item {% if forloop.last %}mb-0{% else %}mb-3{% endif %}">
+                                <div class="timeline-badge bg-success"></div>
+                                <div class="timeline-content p-3 bg-light rounded-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h6 class="mb-0 fw-semibold text-dark">{{ record.diagnosis|truncatechars:40 }}</h6>
+                                        <small class="text-muted">{{ record.record_date|date:"M j, Y" }}</small>
+                                    </div>
+                                    {% if record.Healthcareprovider and record.Healthcareprovider.user %}
+                                    <p class="small text-muted mb-2">
+                                        <i class="bi bi-person-badge me-1"></i>
+                                        Dr. {{ record.Healthcareprovider.user.get_full_name }}
+                                    </p>
+                                    {% endif %}
+                                    <p class="mb-3">{{ record.treatment|truncatechars:80 }}</p>
+                                    <div class="d-flex gap-2">
+                                        <a href="{% url 'medical_record_detail' record.id %}"
+                                           class="btn btn-sm btn-outline-success rounded-pill px-3">
+                                            View Details
+                                        </a>
+                                        <a href="{% url 'download_medical_record' record.id %}"
+                                           class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                            <i class="bi bi-download me-1"></i>Download
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% if not forloop.last %}<hr class="my-3">{% endif %}
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-file-earmark-medical fa-4x text-muted mb-3"></i>
+                            <h5 class="text-muted">No medical records found</h5>
+                            <p class="text-muted mb-4">Your medical history will appear here</p>
+                            <a href="#" class="btn btn-success">
+                                <i class="bi bi-upload me-1"></i> Upload Records
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Second Row - Billing Section -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center py-3 rounded-top-3">
+                    <h5 class="card-title mb-0 fw-semibold">
+                        <i class="bi bi-receipt me-2"></i>Billing & Payments
+                    </h5>
+                    <a href="{% url 'billing_payments' %}" class="btn btn-sm btn-light">
+                        <i class="bi bi-clock-history me-1"></i> All Bills
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    {% if unpaid_bills %}
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-4">Invoice #</th>
+                                        <th>Service</th>
+                                        <th>Due Date</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th class="pe-4 text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for bill in unpaid_bills %}
+                                    <tr>
+                                        <td class="ps-4"><strong>#{{ bill.invoice_number }}</strong></td>
+                                        <td>{{ bill.service|default:"General Consultation" }}</td>
+                                        <td>
+                                            <span class="{% if bill.due_date < current_date %}text-danger{% endif %}">
+                                                {{ bill.due_date|date:"M j, Y" }}
+                                                {% if bill.due_date < current_date %}
+                                                <span class="badge bg-danger ms-1">Overdue</span>
+                                                {% endif %}
+                                            </span>
+                                        </td>
+                                        <td>${{ bill.amount }}</td>
+                                        <td>
+                                            <span class="badge rounded-pill {% if bill.status == 'paid' %}bg-success{% else %}bg-warning text-dark{% endif %}">
+                                                {{ bill.get_status_display }}
+                                            </span>
+                                        </td>
+                                        <td class="pe-4 text-end">
+                                            <div class="btn-group">
+                                                <a href="{% url 'create_payment' bill.id %}" class="btn btn-sm btn-primary rounded">
+                                                    <i class="bi bi-credit-card me-1"></i> Pay Now
+                                                </a>
+                                                <a href="{% url 'payment_detail' bill.id %}" class="btn btn-sm btn-outline-secondary rounded ms-1">
+                                                    <i class="bi bi-file-earmark-text"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-check-circle fa-4x text-success mb-3"></i>
+                            <h5 class="mb-2">No unpaid bills</h5>
+                            <p class="text-muted mb-4">You're all caught up with your payments!</p>
+                            <a href="{% url 'payment_history' %}" class="btn btn-outline-danger">
+                                <i class="bi bi-clock-history me-1"></i> View Payment History
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --primary-color: #4e73df;
+        --success-color: #1cc88a;
+        --danger-color: #e74a3b;
+        --warning-color: #f6c23e;
+        --info-color: #36b9cc;
+    }
+
+    .dashboard-container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .welcome-card .card {
+        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        border-left: 4px solid var(--primary-color);
+    }
+
+    .profile-img {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 3px solid white;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-item {
+        min-width: 150px;
+        transition: all 0.3s ease;
+    }
+
+    .stat-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-number {
+        display: block;
+        font-size: 24px;
+        font-weight: 700;
+    }
+
+    .stat-label {
+        display: block;
+        font-size: 13px;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .card {
+        transition: all 0.3s ease;
+    }
+
+    .card:hover {
+        box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1) !important;
+    }
+
+    .card-header {
+        font-size: 1rem;
+    }
+
+    .table th {
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        color: #6c757d;
+    }
+
+    .timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+
+    .timeline-item {
+        position: relative;
+    }
+
+    .timeline-badge {
+        position: absolute;
+        left: -25px;
+        top: 15px;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        border: 2px solid white;
+        z-index: 2;
+    }
+
+    .timeline-content {
+        transition: all 0.3s ease;
+    }
+
+    .timeline-content:hover {
+        background-color: #f8f9fa !important;
+    }
+
+    .rounded-3 {
+        border-radius: 0.75rem !important;
+    }
+
+    .rounded-top-3 {
+        border-top-left-radius: 0.75rem !important;
+        border-top-right-radius: 0.75rem !important;
+    }
+
+    @media (max-width: 992px) {
+        .profile-img {
+            width: 80px;
+            height: 80px;
+        }
+
+        .stat-item {
+            min-width: 120px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .welcome-content {
+            text-align: center;
+        }
+
+        .quick-stats {
+            justify-content: center;
+        }
+
+        .welcome-avatar {
+            display: none;
+        }
+
+        .stat-item {
+            min-width: 100%;
+            margin-bottom: 10px;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+
+        // Add animation to cards on load
+        const cards = document.querySelectorAll('.card');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'all 0.5s ease';
+
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 100 * index);
+        });
+    });
+</script>
+{% endblock %}

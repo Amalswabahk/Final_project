@@ -1,0 +1,252 @@
+{% extends "doctor_module/base.html" %}
+
+{% block doctor_title %}Patient Search{% endblock %}
+{% block doctor_header %}Patient Search{% endblock %}
+
+{% block doctor_header_buttons %}
+<div class="btn-group">
+    <button type="button" class="btn btn-primary btn-sm rounded-pill">
+        <i class="bi bi-plus-circle me-1"></i> New Patient
+    </button>
+</div>
+{% endblock %}
+
+{% block doctor_content %}
+<div class="container-fluid">
+    <!-- Search Card -->
+    <div class="card mb-4 border-0 shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h5 class="card-title mb-0"><i class="bi bi-search me-2"></i>Search Filters</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label for="name" class="form-label">Patient Name</label>
+                    <input type="text" class="form-control" id="name" name="name" placeholder="First or last name">
+                </div>
+                <div class="col-md-4">
+                    <label for="id" class="form-label">Patient ID</label>
+                    <input type="text" class="form-control" id="id" name="id" placeholder="MRN or ID">
+                </div>
+                <div class="col-md-4">
+                    <label for="dob" class="form-label">Date of Birth</label>
+                    <input type="date" class="form-control" id="dob" name="dob">
+                </div>
+                <div class="col-md-6">
+                    <label for="phone" class="form-label">Phone Number</label>
+                    <input type="tel" class="form-control" id="phone" name="phone" placeholder="(123) 456-7890">
+                </div>
+                <div class="col-md-6">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" placeholder="patient@example.com">
+                </div>
+                <div class="col-12">
+                    <div class="d-flex justify-content-end">
+                        <button type="reset" class="btn btn-outline-secondary me-2 rounded-pill">
+                            <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+                        </button>
+                        <button type="submit" class="btn btn-primary rounded-pill">
+                            <i class="bi bi-search me-1"></i> Search
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Results Card -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0"><i class="bi bi-people me-2"></i>Search Results</h5>
+            <div class="text-muted small">Showing {{ patients|length }} patients</div>
+        </div>
+        <div class="card-body p-0">
+            {% if patients %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>Patient ID</th>
+                                <th>Name</th>
+                                <th>Age</th>
+                                <th>Gender</th>
+                                <th>Last Visit</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for patient in patients %}
+                            <tr>
+                                <td class="align-middle">
+                                    <span class="badge bg-primary bg-opacity-10 text-primary">#{{ patient.mrn }}</span>
+                                </td>
+                                <td class="align-middle">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar avatar-sm bg-light rounded-circle me-2">
+                                            {% if patient.user.gender == 'F' %}
+                                                <i class="bi bi-gender-female text-pink"></i>
+                                            {% elif patient.user.gender == 'M' %}
+                                                <i class="bi bi-gender-male text-blue"></i>
+                                            {% else %}
+                                                <i class="bi bi-gender-ambiguous text-secondary"></i>
+                                            {% endif %}
+                                        </div>
+                                        <div>
+                                            <a href="{% url 'patient_detail' patient.id %}" class="text-decoration-none">
+                                                {{ patient.user.get_full_name }}
+                                            </a>
+                                            <small class="d-block text-muted">{{ patient.user.email }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="align-middle">{{ patient.age }}</td>
+                                <td class="align-middle">
+                                    {% if patient.user.gender == 'F' %}
+                                        <span class="badge bg-pink bg-opacity-10 text-pink">Female</span>
+                                    {% elif patient.user.gender == 'M' %}
+                                        <span class="badge bg-blue bg-opacity-10 text-blue">Male</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary bg-opacity-10">Other</span>
+                                    {% endif %}
+                                </td>
+                                <td class="align-middle">
+                                    {% if patient.last_visit %}
+                                        {{ patient.last_visit|date:"M d, Y" }}
+                                    {% else %}
+                                        <span class="text-muted">Never</span>
+                                    {% endif %}
+                                </td>
+                                <td class="align-middle">
+                                    {% if patient.is_active %}
+                                        <span class="badge bg-success bg-opacity-10 text-success">Active</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary bg-opacity-10">Inactive</span>
+                                    {% endif %}
+                                </td>
+                                <td class="align-middle">
+                                    <div class="d-flex">
+                                        <a href="{% url 'patient_detail' patient.id %}" class="btn btn-sm btn-outline-primary me-2 rounded-pill">
+                                            <i class="bi bi-eye"></i> View
+                                        </a>
+
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <div class="empty-state-icon mb-3">
+                        <i class="bi bi-search text-muted" style="font-size: 4rem;"></i>
+                    </div>
+                    <h5>No patients found</h5>
+                    <p class="text-muted">Try adjusting your search filters</p>
+                    <button class="btn btn-primary rounded-pill mt-3" onclick="document.querySelector('form').reset()">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i> Reset Filters
+                    </button>
+                </div>
+            {% endif %}
+        </div>
+        {% if is_paginated %}
+        <div class="card-footer bg-white">
+            <nav aria-label="Patient pagination">
+                <ul class="pagination justify-content-center mb-0">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1" aria-label="First">
+                                <span aria-hidden="true">&laquo;&laquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <li class="page-item active">
+                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                            </li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
+                                <span aria-hidden="true">&raquo;&raquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    /* Custom colors */
+    .text-pink {
+        color: #e83e8c;
+    }
+    .bg-pink {
+        background-color: #e83e8c;
+    }
+    .text-blue {
+        color: #17a2b8;
+    }
+    .bg-blue {
+        background-color: #17a2b8;
+    }
+
+    /* Table row hover effect */
+    .table-hover tbody tr:hover {
+        background-color: rgba(75, 121, 207, 0.05);
+    }
+
+    /* Avatar styling */
+    .avatar {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+    }
+    .avatar-sm {
+        width: 36px;
+        height: 36px;
+    }
+
+    /* Empty state styling */
+    .empty-state-icon {
+        font-size: 4rem;
+        color: #dee2e6;
+        margin-bottom: 20px;
+    }
+
+    /* Form styling */
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(75, 121, 207, 0.25);
+    }
+
+    /* Badge styling */
+    .badge {
+        font-weight: 500;
+        padding: 5px 10px;
+    }
+</style>
+{% endblock %}

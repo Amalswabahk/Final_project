@@ -1,0 +1,29 @@
+/* Custom styles that aren't covered by Bootstrap */
+.medical-record-card {
+    border-left: 4px solid #0d6efd;
+}
+
+.allergy-card {
+    border-left: 4px solid #dc3545;
+}
+
+.billing-card {
+    border-left: 4px solid #ffc107;
+}
+
+.health-article-card {
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.health-article-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.category-badge {
+    cursor: pointer;
+}
+
+.category-badge:hover {
+    opacity: 0.8;
+}

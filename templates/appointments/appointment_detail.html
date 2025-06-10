@@ -1,0 +1,105 @@
+{% extends 'patient_module/base.html' %}
+{% load static %}
+
+{% block title %}Appointment Details{% endblock %}
+{% block header %}Appointment Details{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">Appointment Information</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Patient Information</h5>
+                    <p><strong>Name:</strong> {{ appointment.patient.user.get_full_name }}</p>
+                    <p><strong>Contact:</strong> {{ appointment.patient.user.email }}</p>
+                    {% if appointment.patient.phone_number %}
+                        <p><strong>Phone:</strong> {{ appointment.patient.phone_number }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="col-md-6">
+                    <h5>Appointment Details</h5>
+                    <p><strong>Date & Time:</strong> {{ appointment.date_time|date:"F j, Y H:i" }}</p>
+                    <p>
+                        <strong>Status:</strong>
+                        <span class="badge bg-{% if appointment.status == 'Scheduled' %}info
+                                           {% elif appointment.status == 'Completed' %}success
+                                           {% elif appointment.status == 'Cancelled' %}danger
+                                           {% else %}warning{% endif %}">
+                            {{ appointment.get_status_display }}
+                        </span>
+                    </p>
+                    <p><strong>Provider:</strong> {{ appointment.Healthcareprovider.user.get_full_name }}</p>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <h5>Reason for Appointment</h5>
+                <div class="border p-3 rounded bg-light">
+                    {{ appointment.reason|linebreaks }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="d-flex justify-content-between">
+        <div>
+            <a href="{% url 'appointment_list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+
+        <div class="btn-group">
+            {% if can_edit %}
+                <a href="{% url 'appointment_update' appointment.pk %}" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+                <a href="{% url 'appointment_delete' appointment.pk %}" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Delete
+                </a>
+
+                {% if is_upcoming %}
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#completeModal">
+                        <i class="fas fa-check"></i> Mark Complete
+                    </button>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Complete Appointment Modal -->
+<div class="modal fade" id="completeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Completion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to mark this appointment as completed?</p>
+                <p><strong>Patient:</strong> {{ appointment.patient.user.get_full_name }}</p>
+                <p><strong>Date:</strong> {{ appointment.date_time|date:"F j, Y H:i" }}</p>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Initialize any tooltips if needed
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+});
+</script>
+{% endblock %}
